@@ -20,6 +20,13 @@
           >
             タスクを削除
           </button>
+          <button
+            class="btn btn-secondary ms-3"
+            @click="deselectAllTasks"
+            :disabled="!selectedTasks.length"
+          >
+            クリア
+          </button>
         </div>
 
         <!-- タスクリスト -->
@@ -258,6 +265,11 @@ const saveTasks = () => {
 
 // タスクの変更を監視して保存
 watch(tasks, saveTasks, { deep: true });
+
+// 選択したタスクを一括で非選択
+const deselectAllTasks = () => {
+  selectedTasks.value = [];
+};
 </script>
 
 <style scoped>
