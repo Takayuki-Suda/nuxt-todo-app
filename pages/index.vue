@@ -10,13 +10,15 @@
             placeholder="新しいタスクを入力"
             @keyup.enter="addTask"
           />
-          <button class="btn btn-primary" @click="addTask">タスクを追加</button>
+          <button class="btn btn-primary ms-3" @click="addTask">
+            タスクを追加
+          </button>
           <button
-            class="btn btn-danger"
+            class="btn btn-danger ms-3"
             @click="removeSelectedTasks"
             :disabled="!selectedTasks.length"
           >
-            選択したタスクを削除
+            タスクを削除
           </button>
         </div>
         <div class="list-group">
@@ -103,7 +105,7 @@ const removeSelectedTasks = () => {
   );
   selectedTasks.value = []; // 削除後に選択をクリア
   saveTasks();
-  showToastMessage("選択したタスクが削除されました！", "bg-danger");
+  showToastMessage("タスクが削除されました！", "bg-danger");
 };
 
 // トーストメッセージを表示
