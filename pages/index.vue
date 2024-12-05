@@ -51,6 +51,11 @@
               v-for="(task, index) in paginatedTasks"
               :key="index"
               class="list-group-item d-flex align-items-center justify-content-between"
+              draggable="true"
+              :class="{ dragging: draggingTaskIndex === index }"
+              @dragstart="onDragStart(index)"
+              @dragover.prevent="onDragOver(index)"
+              @drop="onDrop(index)"
             >
               <div>
                 <input
@@ -187,6 +192,10 @@ const currentEditTask = ref("");
 const currentPage = ref(1);
 const tasksPerPage = 5;
 
+// ドラッグ＆ドロップ用の状態
+const draggedTaskIndex = ref<number | null>(null);
+const draggingTaskIndex = ref<number | null>(null); // 現在ドラッグ中のタスクインデックスを保持
+
 // ページネーション計算
 const totalPages = computed(() => Math.ceil(tasks.value.length / tasksPerPage));
 const paginatedTasks = computed(() =>
@@ -256,7 +265,7 @@ const saveEditTask = () => {
   if (currentEditTaskIndex.value !== null) {
     const trimmedTask = currentEditTask.value.trim();
     if (trimmedTask === "") {
-      showToastMessage("タスクは空にできません！", "bg-warning");
+      showToastMessage("タスクの内容が空です！", "bg-warning");
       return;
     }
     tasks.value[currentEditTaskIndex.value].text = trimmedTask;
@@ -294,6 +303,29 @@ const deselectAllTasks = () => {
 const clearInput = () => {
   newTask.value = "";
 };
+
+// ドラッグ開始時の処理
+const onDragStart = (index: number) => {
+  draggedTaskIndex.value = index;
+  draggingTaskIndex.value = index; // ドラッグ開始時に現在のタスクを記録
+};
+
+// ドラッグオーバー時の処理
+const onDragOver = (index: number) => {
+  // ドラッグ中のタスクがターゲットに重なったとき
+  draggingTaskIndex.value = index;
+};
+
+// ドロップ時の処理
+const onDrop = (index: number) => {
+  if (draggedTaskIndex.value !== null && draggedTaskIndex.value !== index) {
+    const draggedTask = tasks.value[draggedTaskIndex.value];
+    tasks.value.splice(draggedTaskIndex.value, 1);
+    tasks.value.splice(index, 0, draggedTask);
+    saveTasks();
+  }
+  draggingTaskIndex.value = null; // ドロップ後にインデックスをリセット
+};
 </script>
 
 <style scoped>
@@ -311,5 +343,12 @@ const clearInput = () => {
   border: 2px solid #ddd;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 軽い影を追加 */
+}
+
+/* ドラッグ中のタスクにスタイルを適用 */
+.dragging {
+  background-color: rgba(0, 123, 255, 0.1);
+  border: 2px solid #007bff;
+  box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
 }
 </style>
