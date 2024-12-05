@@ -52,7 +52,11 @@
               :key="index"
               class="list-group-item d-flex align-items-center justify-content-between"
               draggable="true"
-              :class="{ dragging: draggingTaskIndex === index }"
+              :class="{
+                dragging:
+                  draggingTaskIndex ===
+                  index + (currentPage - 1) * tasksPerPage,
+              }"
               @dragstart="onDragStart(index)"
               @dragover.prevent="onDragOver(index)"
               @drop="onDrop(index)"
@@ -257,20 +261,14 @@ const openEditModal = (index: number) => {
 const closeEditModal = () => {
   isEditModalVisible.value = false;
   currentEditTaskIndex.value = null;
-  currentEditTask.value = "";
 };
 
-// 編集を保存
+// 編集したタスクを保存
 const saveEditTask = () => {
   if (currentEditTaskIndex.value !== null) {
-    const trimmedTask = currentEditTask.value.trim();
-    if (trimmedTask === "") {
-      showToastMessage("タスクの内容が空です！", "bg-warning");
-      return;
-    }
-    tasks.value[currentEditTaskIndex.value].text = trimmedTask;
+    tasks.value[currentEditTaskIndex.value].text = currentEditTask.value;
     saveTasks();
-    showToastMessage("タスクが更新されました！", "bg-success");
+    showToastMessage("タスクが更新されました！", "bg-info");
     closeEditModal();
   }
 };
@@ -306,22 +304,23 @@ const clearInput = () => {
 
 // ドラッグ開始時の処理
 const onDragStart = (index: number) => {
-  draggedTaskIndex.value = index;
-  draggingTaskIndex.value = index; // ドラッグ開始時に現在のタスクを記録
+  draggedTaskIndex.value = index + (currentPage.value - 1) * tasksPerPage;
+  draggingTaskIndex.value = draggedTaskIndex.value;
 };
 
 // ドラッグオーバー時の処理
 const onDragOver = (index: number) => {
-  // ドラッグ中のタスクがターゲットに重なったとき
-  draggingTaskIndex.value = index;
+  draggingTaskIndex.value = index + (currentPage.value - 1) * tasksPerPage;
 };
 
 // ドロップ時の処理
 const onDrop = (index: number) => {
   if (draggedTaskIndex.value !== null && draggedTaskIndex.value !== index) {
     const draggedTask = tasks.value[draggedTaskIndex.value];
+    const targetIndex = index + (currentPage.value - 1) * tasksPerPage;
+
     tasks.value.splice(draggedTaskIndex.value, 1);
-    tasks.value.splice(index, 0, draggedTask);
+    tasks.value.splice(targetIndex, 0, draggedTask);
     saveTasks();
   }
   draggingTaskIndex.value = null; // ドロップ後にインデックスをリセット
@@ -333,19 +332,19 @@ const onDrop = (index: number) => {
   max-width: 600px;
   margin: auto;
 }
-/* ボタンとタスクリストを囲む枠 */
+
 .task-container {
   border: 2px solid #ddd;
   border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 軽い影を追加 */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
+
 .input-container {
   border: 2px solid #ddd;
   border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 軽い影を追加 */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* ドラッグ中のタスクにスタイルを適用 */
 .dragging {
   background-color: rgba(0, 123, 255, 0.1);
   border: 2px solid #007bff;
