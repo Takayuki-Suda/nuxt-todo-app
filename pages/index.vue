@@ -87,11 +87,15 @@ onMounted(() => {
 
 // 新しいタスクを追加
 const addTask = () => {
-  if (
-    newTask.value.trim() !== "" &&
-    !tasks.value.some((task) => task.text === newTask.value.trim())
-  ) {
-    tasks.value.push({ text: newTask.value, completed: false });
+  const trimmedTask = newTask.value.trim();
+  if (trimmedTask === "") {
+    return;
+  }
+  if (tasks.value.some((task) => task.text === trimmedTask)) {
+    // 重複タスクが存在する場合
+    showToastMessage("タスクが重複しています！", "bg-warning");
+  } else {
+    tasks.value.push({ text: trimmedTask, completed: false });
     newTask.value = "";
     saveTasks();
     showToastMessage("タスクが正常に追加されました！", "bg-success");
