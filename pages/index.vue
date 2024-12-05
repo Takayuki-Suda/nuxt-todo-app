@@ -21,9 +21,11 @@
             タスクを削除
           </button>
         </div>
+
+        <!-- タスクリスト -->
         <div class="list-group">
           <div
-            v-for="(task, index) in tasks"
+            v-for="(task, index) in paginatedTasks"
             :key="index"
             class="list-group-item d-flex align-items-center justify-content-between"
           >
@@ -31,7 +33,7 @@
               <input
                 type="checkbox"
                 class="form-check-input me-3"
-                :value="index"
+                :value="index + (currentPage - 1) * tasksPerPage"
                 v-model="selectedTasks"
               />
               <span :class="{ 'text-decoration-line-through': task.completed }">
@@ -40,12 +42,41 @@
             </div>
             <button
               class="btn btn-secondary btn-sm"
-              @click="openEditModal(index)"
+              @click="openEditModal(index + (currentPage - 1) * tasksPerPage)"
             >
               編集
             </button>
           </div>
         </div>
+
+        <!-- ページネーション -->
+        <nav aria-label="Task pagination" class="mt-3">
+          <ul class="pagination justify-content-center">
+            <li class="page-item" :class="{ disabled: currentPage === 1 }">
+              <button class="page-link" @click="changePage(currentPage - 1)">
+                前へ
+              </button>
+            </li>
+            <li
+              v-for="page in totalPages"
+              :key="page"
+              class="page-item"
+              :class="{ active: currentPage === page }"
+            >
+              <button class="page-link" @click="changePage(page)">
+                {{ page }}
+              </button>
+            </li>
+            <li
+              :class="{ disabled: currentPage === totalPages }"
+              class="page-item"
+            >
+              <button class="page-link" @click="changePage(currentPage + 1)">
+                次へ
+              </button>
+            </li>
+          </ul>
+        </nav>
       </div>
     </div>
 
@@ -112,19 +143,32 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch, onMounted } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
 
 const tasks = ref<{ text: string; completed: boolean }[]>([]);
 const newTask = ref("");
 const showToast = ref(false);
 const toastType = ref("bg-success");
 const toastMessage = ref("タスクが正常に追加されました！");
-const selectedTasks = ref<number[]>([]); // 選択されたタスクのインデックスを管理
+const selectedTasks = ref<number[]>([]);
 
 // 編集モーダル用の状態
 const isEditModalVisible = ref(false);
 const currentEditTaskIndex = ref<number | null>(null);
 const currentEditTask = ref("");
+
+// ページネーション用の状態
+const currentPage = ref(1);
+const tasksPerPage = 8;
+
+// ページネーション計算
+const totalPages = computed(() => Math.ceil(tasks.value.length / tasksPerPage));
+const paginatedTasks = computed(() =>
+  tasks.value.slice(
+    (currentPage.value - 1) * tasksPerPage,
+    currentPage.value * tasksPerPage
+  )
+);
 
 // ローカルストレージからタスクを読み込む
 onMounted(() => {
@@ -141,7 +185,6 @@ const addTask = () => {
     return;
   }
   if (tasks.value.some((task) => task.text === trimmedTask)) {
-    // 重複タスクが存在する場合
     showToastMessage("タスクが重複しています！", "bg-warning");
   } else {
     tasks.value.push({ text: trimmedTask, completed: false });
@@ -151,12 +194,19 @@ const addTask = () => {
   }
 };
 
+// ページ切り替え
+const changePage = (page: number) => {
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page;
+  }
+};
+
 // 選択したタスクを削除
 const removeSelectedTasks = () => {
   tasks.value = tasks.value.filter(
     (_, index) => !selectedTasks.value.includes(index)
   );
-  selectedTasks.value = []; // 削除後に選択をクリア
+  selectedTasks.value = [];
   saveTasks();
   showToastMessage("タスクが削除されました！", "bg-danger");
 };
@@ -196,7 +246,6 @@ const showToastMessage = (message: string, type: string) => {
   toastType.value = type;
   showToast.value = true;
 
-  // 2秒後にトーストを非表示
   setTimeout(() => {
     showToast.value = false;
   }, 2000);
@@ -204,9 +253,7 @@ const showToastMessage = (message: string, type: string) => {
 
 // タスクをローカルストレージに保存
 const saveTasks = () => {
-  if (typeof window !== "undefined" && window.localStorage) {
-    localStorage.setItem("tasks", JSON.stringify(tasks.value));
-  }
+  localStorage.setItem("tasks", JSON.stringify(tasks.value));
 };
 
 // タスクの変更を監視して保存
@@ -217,24 +264,5 @@ watch(tasks, saveTasks, { deep: true });
 .container {
   max-width: 600px;
   margin: auto;
-}
-
-/* トーストのカスタマイズ */
-.toast {
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.toast-header {
-  background-color: #007bff;
-  color: white;
-}
-
-.modal {
-  display: block;
-}
-
-.modal-content {
-  border-radius: 10px;
 }
 </style>
