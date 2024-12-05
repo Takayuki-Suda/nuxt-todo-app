@@ -11,9 +11,30 @@
             @keyup.enter="addTask"
           />
           <button class="btn btn-primary" @click="addTask">タスクを追加</button>
+          <button
+            class="btn btn-danger"
+            @click="removeSelectedTasks"
+            :disabled="!selectedTasks.length"
+          >
+            選択したタスクを削除
+          </button>
         </div>
         <div class="list-group">
-          <TodoList :tasks="tasks" @toggle="toggleTask" @remove="removeTask" />
+          <div
+            v-for="(task, index) in tasks"
+            :key="index"
+            class="list-group-item d-flex align-items-center"
+          >
+            <input
+              type="checkbox"
+              class="form-check-input me-3"
+              :value="index"
+              v-model="selectedTasks"
+            />
+            <span :class="{ 'text-decoration-line-through': task.completed }">
+              {{ task.text }}
+            </span>
+          </div>
         </div>
       </div>
     </div>
@@ -46,13 +67,13 @@
 
 <script lang="ts" setup>
 import { ref, watch, onMounted } from "vue";
-import TodoList from "@/components/TodoList.vue";
 
 const tasks = ref([]);
 const newTask = ref("");
 const showToast = ref(false);
 const toastType = ref("bg-success");
-const toastMessage = ref("");
+const toastMessage = ref("タスクが正常に追加されました！");
+const selectedTasks = ref<number[]>([]); // 選択されたタスクのインデックスを管理
 
 // ローカルストレージからタスクを読み込む
 onMounted(() => {
@@ -75,17 +96,14 @@ const addTask = () => {
   }
 };
 
-// タスクの完了状態を切り替え
-const toggleTask = (index: number) => {
-  tasks.value[index].completed = !tasks.value[index].completed;
+// 選択したタスクを削除
+const removeSelectedTasks = () => {
+  tasks.value = tasks.value.filter(
+    (_, index) => !selectedTasks.value.includes(index)
+  );
+  selectedTasks.value = []; // 削除後に選択をクリア
   saveTasks();
-};
-
-// タスクを削除
-const removeTask = (index: number) => {
-  tasks.value.splice(index, 1);
-  saveTasks();
-  showToastMessage("タスクが正常に削除されました！", "bg-danger");
+  showToastMessage("選択したタスクが削除されました！", "bg-danger");
 };
 
 // トーストメッセージを表示
