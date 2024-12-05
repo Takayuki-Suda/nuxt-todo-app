@@ -7,13 +7,37 @@
             v-model="newTask"
             type="text"
             class="form-control"
-            placeholder="Enter a new task"
+            placeholder="新しいタスクを入力"
             @keyup.enter="addTask"
           />
-          <button class="btn btn-primary" @click="addTask">Add Task</button>
+          <button class="btn btn-primary" @click="addTask">タスクを追加</button>
         </div>
         <div class="list-group">
           <TodoList :tasks="tasks" @toggle="toggleTask" @remove="removeTask" />
+        </div>
+      </div>
+    </div>
+
+    <!-- トースト通知 -->
+    <div
+      v-if="showToast"
+      class="position-fixed top-0 end-0 p-3"
+      style="z-index: 1050; width: 300px; transition: opacity 0.5s ease-out"
+    >
+      <div
+        class="toast show"
+        role="alert"
+        aria-live="assertive"
+        aria-atomic="true"
+        :class="toastType"
+      >
+        <div class="toast-header">
+          <strong class="me-auto">{{ toastMessage }}</strong>
+          <button
+            type="button"
+            class="btn-close"
+            @click="showToast = false"
+          ></button>
         </div>
       </div>
     </div>
@@ -26,6 +50,9 @@ import TodoList from "@/components/TodoList.vue";
 
 const tasks = ref([]);
 const newTask = ref("");
+const showToast = ref(false);
+const toastType = ref("bg-success");
+const toastMessage = ref("");
 
 // ローカルストレージからタスクを読み込む
 onMounted(() => {
@@ -37,10 +64,14 @@ onMounted(() => {
 
 // 新しいタスクを追加
 const addTask = () => {
-  if (newTask.value.trim() !== "") {
+  if (
+    newTask.value.trim() !== "" &&
+    !tasks.value.some((task) => task.text === newTask.value.trim())
+  ) {
     tasks.value.push({ text: newTask.value, completed: false });
     newTask.value = "";
     saveTasks();
+    showToastMessage("タスクが正常に追加されました！", "bg-success");
   }
 };
 
@@ -52,8 +83,21 @@ const toggleTask = (index: number) => {
 
 // タスクを削除
 const removeTask = (index: number) => {
-  tasks.value.splice(index, 1); // タスクを削除
-  saveTasks(); // 変更をローカルストレージに保存
+  tasks.value.splice(index, 1);
+  saveTasks();
+  showToastMessage("タスクが正常に削除されました！", "bg-danger");
+};
+
+// トーストメッセージを表示
+const showToastMessage = (message: string, type: string) => {
+  toastMessage.value = message;
+  toastType.value = type;
+  showToast.value = true;
+
+  // 2秒後にトーストを非表示
+  setTimeout(() => {
+    showToast.value = false;
+  }, 2000);
 };
 
 // タスクをローカルストレージに保存
@@ -71,5 +115,21 @@ watch(tasks, saveTasks, { deep: true });
 .container {
   max-width: 600px;
   margin: auto;
+}
+
+/* トーストのカスタマイズ */
+.toast {
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.toast-header {
+  background-color: #007bff;
+  color: white;
+}
+
+.toast-body {
+  font-size: 14px;
+  padding: 10px;
 }
 </style>
