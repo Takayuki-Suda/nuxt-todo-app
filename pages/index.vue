@@ -25,17 +25,61 @@
           <div
             v-for="(task, index) in tasks"
             :key="index"
-            class="list-group-item d-flex align-items-center"
+            class="list-group-item d-flex align-items-center justify-content-between"
           >
+            <div>
+              <input
+                type="checkbox"
+                class="form-check-input me-3"
+                :value="index"
+                v-model="selectedTasks"
+              />
+              <span :class="{ 'text-decoration-line-through': task.completed }">
+                {{ task.text }}
+              </span>
+            </div>
+            <button
+              class="btn btn-secondary btn-sm"
+              @click="openEditModal(index)"
+            >
+              編集
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 編集モーダル -->
+    <div
+      v-if="isEditModalVisible"
+      class="modal fade show"
+      tabindex="-1"
+      style="display: block; background: rgba(0, 0, 0, 0.5)"
+      role="dialog"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">タスクを編集</h5>
+            <button
+              type="button"
+              class="btn-close"
+              @click="closeEditModal"
+            ></button>
+          </div>
+          <div class="modal-body">
             <input
-              type="checkbox"
-              class="form-check-input me-3"
-              :value="index"
-              v-model="selectedTasks"
+              v-model="currentEditTask"
+              type="text"
+              class="form-control"
+              placeholder="タスクを編集してください"
             />
-            <span :class="{ 'text-decoration-line-through': task.completed }">
-              {{ task.text }}
-            </span>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" @click="closeEditModal">
+              キャンセル
+            </button>
+            <button class="btn btn-primary" @click="saveEditTask">保存</button>
           </div>
         </div>
       </div>
@@ -70,12 +114,17 @@
 <script lang="ts" setup>
 import { ref, watch, onMounted } from "vue";
 
-const tasks = ref([]);
+const tasks = ref<{ text: string; completed: boolean }[]>([]);
 const newTask = ref("");
 const showToast = ref(false);
 const toastType = ref("bg-success");
 const toastMessage = ref("タスクが正常に追加されました！");
 const selectedTasks = ref<number[]>([]); // 選択されたタスクのインデックスを管理
+
+// 編集モーダル用の状態
+const isEditModalVisible = ref(false);
+const currentEditTaskIndex = ref<number | null>(null);
+const currentEditTask = ref("");
 
 // ローカルストレージからタスクを読み込む
 onMounted(() => {
@@ -110,6 +159,35 @@ const removeSelectedTasks = () => {
   selectedTasks.value = []; // 削除後に選択をクリア
   saveTasks();
   showToastMessage("タスクが削除されました！", "bg-danger");
+};
+
+// 編集モーダルを開く
+const openEditModal = (index: number) => {
+  currentEditTaskIndex.value = index;
+  currentEditTask.value = tasks.value[index].text;
+  isEditModalVisible.value = true;
+};
+
+// 編集モーダルを閉じる
+const closeEditModal = () => {
+  isEditModalVisible.value = false;
+  currentEditTaskIndex.value = null;
+  currentEditTask.value = "";
+};
+
+// 編集を保存
+const saveEditTask = () => {
+  if (currentEditTaskIndex.value !== null) {
+    const trimmedTask = currentEditTask.value.trim();
+    if (trimmedTask === "") {
+      showToastMessage("タスクは空にできません！", "bg-warning");
+      return;
+    }
+    tasks.value[currentEditTaskIndex.value].text = trimmedTask;
+    saveTasks();
+    showToastMessage("タスクが更新されました！", "bg-success");
+    closeEditModal();
+  }
 };
 
 // トーストメッセージを表示
@@ -152,8 +230,11 @@ watch(tasks, saveTasks, { deep: true });
   color: white;
 }
 
-.toast-body {
-  font-size: 14px;
-  padding: 10px;
+.modal {
+  display: block;
+}
+
+.modal-content {
+  border-radius: 10px;
 }
 </style>
