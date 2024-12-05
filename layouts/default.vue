@@ -8,7 +8,7 @@
       <NuxtPage />
     </main>
     <footer>
-      <p>© 2024 Nuxt ToDo App</p>
+      <p>© 2024 Suda. All rights reserved.</p>
     </footer>
   </div>
 </template>
