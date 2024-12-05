@@ -1,47 +1,44 @@
 <template>
-  <ul class="todo-list">
-    <li
+  <div class="list-group">
+    <div
       v-for="(task, index) in tasks"
       :key="index"
-      :class="{ completed: task.completed }"
+      class="list-group-item d-flex justify-content-between align-items-center"
+      :class="{ 'list-group-item-success': task.completed }"
     >
-      <input
-        type="checkbox"
-        :checked="task.completed"
-        @change="$emit('toggle', index)"
-      />
-      <span>{{ task.text }}</span>
-      <button @click="$emit('remove', index)">Remove</button>
-    </li>
-  </ul>
+      <span @click="toggleTask(index)" style="cursor: pointer">
+        <input type="checkbox" v-model="task.completed" />
+        {{ task.text }}
+      </span>
+      <button class="btn btn-danger btn-sm" @click="removeTask(index)">
+        Remove
+      </button>
+    </div>
+  </div>
 </template>
 
 <script lang="ts" setup>
-// タスクのリストを受け取る
-defineProps<{
-  tasks: { text: string; completed: boolean }[];
-}>();
+defineProps({
+  tasks: Array,
+});
+
+defineEmits(["toggle", "remove"]);
+
+const toggleTask = (index: number) => {
+  emit("toggle", index);
+};
+
+const removeTask = (index: number) => {
+  emit("remove", index);
+};
 </script>
 
 <style scoped>
-.todo-list {
-  list-style-type: none;
-  padding: 0;
+.list-group-item {
+  transition: background-color 0.3s;
 }
-.todo-list li {
-  display: flex;
-  align-items: center;
-  margin-bottom: 10px;
-}
-.todo-list li.completed span {
-  text-decoration: line-through;
-}
-button {
-  margin-left: 10px;
-  background-color: red;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  cursor: pointer;
+
+.list-group-item-success {
+  background-color: #d4edda;
 }
 </style>

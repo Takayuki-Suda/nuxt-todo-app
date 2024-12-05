@@ -1,14 +1,14 @@
 <template>
   <div class="layout-container">
     <header>
-      <h1>Simple ToDo App</h1>
+      <h1>Nuxt ToDo App</h1>
     </header>
     <main>
       <!-- ページの内容がここにレンダリングされる -->
       <NuxtPage />
     </main>
     <footer>
-      <p>© 2024 Simple ToDo App</p>
+      <p>© 2024 Nuxt ToDo App</p>
     </footer>
   </div>
 </template>

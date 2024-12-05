@@ -5,5 +5,5 @@ export default defineNuxtConfig({
   typescript: {
     strict: true,
   },
-  css: ["@/assets/styles.css"], // 必要ならCSSファイルを追加
+  css: ["@/assets/styles.css", "bootstrap/dist/css/bootstrap.min.css"], // 必要ならCSSファイルを追加
 });
