@@ -2,57 +2,76 @@
   <div class="container my-5">
     <div class="row">
       <div class="col-12">
-        <div class="input-group mb-3">
-          <input
-            v-model="newTask"
-            type="text"
-            class="form-control"
-            placeholder="新しいタスクを入力"
-            @keyup.enter="addTask"
-          />
-          <button class="btn btn-primary ms-3" @click="addTask">
-            タスクを追加
-          </button>
-          <button
-            class="btn btn-danger ms-3"
-            @click="removeSelectedTasks"
-            :disabled="!selectedTasks.length"
-          >
-            タスクを削除
-          </button>
-          <button
-            class="btn btn-secondary ms-3"
-            @click="deselectAllTasks"
-            :disabled="!selectedTasks.length"
-          >
-            クリア
-          </button>
+        <!-- 入力エリア -->
+        <div class="input-container border p-3 mb-3">
+          <div class="input-group">
+            <input
+              v-model="newTask"
+              type="text"
+              class="form-control"
+              placeholder="新しいタスクを入力"
+              @keyup.enter="addTask"
+            />
+            <button class="btn btn-primary ms-3" @click="addTask">
+              タスクを追加
+            </button>
+            <button
+              class="btn btn-secondary ms-3"
+              @click="clearInput"
+              :disabled="!newTask"
+            >
+              入力内容をクリア
+            </button>
+          </div>
         </div>
 
-        <!-- タスクリスト -->
-        <div class="list-group">
-          <div
-            v-for="(task, index) in paginatedTasks"
-            :key="index"
-            class="list-group-item d-flex align-items-center justify-content-between"
-          >
-            <div>
-              <input
-                type="checkbox"
-                class="form-check-input me-3"
-                :value="index + (currentPage - 1) * tasksPerPage"
-                v-model="selectedTasks"
-              />
-              <span :class="{ 'text-decoration-line-through': task.completed }">
-                {{ task.text }}
-              </span>
-            </div>
+        <!-- ボタンとタスクリストを一つの枠で囲む -->
+        <div class="task-container border p-3">
+          <!-- タスク管理ボタン -->
+          <div class="mb-3">
             <button
-              class="btn btn-secondary btn-sm"
-              @click="openEditModal(index + (currentPage - 1) * tasksPerPage)"
+              class="btn btn-danger me-3"
+              @click="removeSelectedTasks"
+              :disabled="!selectedTasks.length"
             >
-              編集
+              タスクを削除
             </button>
+            <button
+              class="btn btn-secondary"
+              @click="deselectAllTasks"
+              :disabled="!selectedTasks.length"
+            >
+              選択されたタスクをクリア
+            </button>
+          </div>
+
+          <!-- タスクリスト -->
+          <div class="list-group">
+            <div
+              v-for="(task, index) in paginatedTasks"
+              :key="index"
+              class="list-group-item d-flex align-items-center justify-content-between"
+            >
+              <div>
+                <input
+                  type="checkbox"
+                  class="form-check-input me-3"
+                  :value="index + (currentPage - 1) * tasksPerPage"
+                  v-model="selectedTasks"
+                />
+                <span
+                  :class="{ 'text-decoration-line-through': task.completed }"
+                >
+                  {{ task.text }}
+                </span>
+              </div>
+              <button
+                class="btn btn-secondary btn-sm"
+                @click="openEditModal(index + (currentPage - 1) * tasksPerPage)"
+              >
+                編集
+              </button>
+            </div>
           </div>
         </div>
 
@@ -166,7 +185,7 @@ const currentEditTask = ref("");
 
 // ページネーション用の状態
 const currentPage = ref(1);
-const tasksPerPage = 8;
+const tasksPerPage = 5;
 
 // ページネーション計算
 const totalPages = computed(() => Math.ceil(tasks.value.length / tasksPerPage));
@@ -270,11 +289,27 @@ watch(tasks, saveTasks, { deep: true });
 const deselectAllTasks = () => {
   selectedTasks.value = [];
 };
+
+// 入力内容をクリア
+const clearInput = () => {
+  newTask.value = "";
+};
 </script>
 
 <style scoped>
 .container {
   max-width: 600px;
   margin: auto;
+}
+/* ボタンとタスクリストを囲む枠 */
+.task-container {
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 軽い影を追加 */
+}
+.input-container {
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 軽い影を追加 */
 }
 </style>
