@@ -1,0 +1,14 @@
+body {
+  background: url("images/background-image.jpg") no-repeat center center fixed;
+  background-size: cover;
+  animation: animated-background 20s linear infinite;
+}
+
+@keyframes animated-background {
+  0% {
+    background-position: 0 0; /* 初期位置 */
+  }
+  100% {
+    background-position: 100% 100%; /* 最終位置 */
+  }
+}
