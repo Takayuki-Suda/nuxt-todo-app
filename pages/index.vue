@@ -27,6 +27,7 @@ import TodoList from "@/components/TodoList.vue";
 const tasks = ref([]);
 const newTask = ref("");
 
+// ローカルストレージからタスクを読み込む
 onMounted(() => {
   const savedTasks = localStorage.getItem("tasks");
   if (savedTasks) {
@@ -34,6 +35,7 @@ onMounted(() => {
   }
 });
 
+// 新しいタスクを追加
 const addTask = () => {
   if (newTask.value.trim() !== "") {
     tasks.value.push({ text: newTask.value, completed: false });
@@ -42,22 +44,26 @@ const addTask = () => {
   }
 };
 
+// タスクの完了状態を切り替え
 const toggleTask = (index: number) => {
   tasks.value[index].completed = !tasks.value[index].completed;
   saveTasks();
 };
 
+// タスクを削除
 const removeTask = (index: number) => {
-  tasks.value.splice(index, 1);
-  saveTasks();
+  tasks.value.splice(index, 1); // タスクを削除
+  saveTasks(); // 変更をローカルストレージに保存
 };
 
+// タスクをローカルストレージに保存
 const saveTasks = () => {
   if (typeof window !== "undefined" && window.localStorage) {
     localStorage.setItem("tasks", JSON.stringify(tasks.value));
   }
 };
 
+// タスクの変更を監視して保存
 watch(tasks, saveTasks, { deep: true });
 </script>
 

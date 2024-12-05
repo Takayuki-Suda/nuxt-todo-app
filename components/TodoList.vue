@@ -18,18 +18,18 @@
 </template>
 
 <script lang="ts" setup>
-defineProps({
+const props = defineProps({
   tasks: Array,
 });
 
-defineEmits(["toggle", "remove"]);
+const emit = defineEmits(["toggle", "remove"]);
 
 const toggleTask = (index: number) => {
-  emit("toggle", index);
+  emit("toggle", index); // タスクの完了状態を親コンポーネントに通知
 };
 
 const removeTask = (index: number) => {
-  emit("remove", index);
+  emit("remove", index); // タスクの削除を親コンポーネントに通知
 };
 </script>
 
