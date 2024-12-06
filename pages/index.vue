@@ -45,11 +45,32 @@
             </button>
           </div>
 
+          <!-- タスク表示件数の選択 -->
+          <div class="mb-3">
+            <label for="tasksPerPage" class="form-label"
+              >タスクの表示件数</label
+            >
+            <select
+              id="tasksPerPage"
+              class="form-select"
+              v-model="tasksPerPage"
+              @change="resetPage"
+            >
+              <option
+                v-for="option in taskDisplayOptions"
+                :key="option"
+                :value="option"
+              >
+                {{ option }} 件
+              </option>
+            </select>
+          </div>
+
           <!-- タスクリスト -->
           <div class="list-group">
             <div
               v-for="(task, index) in paginatedTasks"
-              :key="index"
+              :key="task.text"
               class="list-group-item d-flex align-items-center justify-content-between"
               draggable="true"
               :class="{
@@ -194,18 +215,21 @@ const currentEditTask = ref("");
 
 // ページネーション用の状態
 const currentPage = ref(1);
-const tasksPerPage = 5;
+const tasksPerPage = ref(5); // デフォルトは5件表示
+const taskDisplayOptions = [5, 10, 20]; // ユーザーが選択できるタスク件数
 
 // ドラッグ＆ドロップ用の状態
 const draggedTaskIndex = ref<number | null>(null);
 const draggingTaskIndex = ref<number | null>(null); // 現在ドラッグ中のタスクインデックスを保持
 
 // ページネーション計算
-const totalPages = computed(() => Math.ceil(tasks.value.length / tasksPerPage));
+const totalPages = computed(() =>
+  Math.ceil(tasks.value.length / tasksPerPage.value)
+);
 const paginatedTasks = computed(() =>
   tasks.value.slice(
-    (currentPage.value - 1) * tasksPerPage,
-    currentPage.value * tasksPerPage
+    (currentPage.value - 1) * tasksPerPage.value,
+    currentPage.value * tasksPerPage.value
   )
 );
 
@@ -302,22 +326,28 @@ const clearInput = () => {
   newTask.value = "";
 };
 
+// ページ数リセット（タスク表示件数変更時）
+const resetPage = () => {
+  currentPage.value = 1; // 件数変更時は常に1ページ目から表示
+};
+
 // ドラッグ開始時の処理
 const onDragStart = (index: number) => {
-  draggedTaskIndex.value = index + (currentPage.value - 1) * tasksPerPage;
+  draggedTaskIndex.value = index + (currentPage.value - 1) * tasksPerPage.value;
   draggingTaskIndex.value = draggedTaskIndex.value;
 };
 
 // ドラッグオーバー時の処理
 const onDragOver = (index: number) => {
-  draggingTaskIndex.value = index + (currentPage.value - 1) * tasksPerPage;
+  draggingTaskIndex.value =
+    index + (currentPage.value - 1) * tasksPerPage.value;
 };
 
 // ドロップ時の処理
 const onDrop = (index: number) => {
   if (draggedTaskIndex.value !== null && draggedTaskIndex.value !== index) {
     const draggedTask = tasks.value[draggedTaskIndex.value];
-    const targetIndex = index + (currentPage.value - 1) * tasksPerPage;
+    const targetIndex = index + (currentPage.value - 1) * tasksPerPage.value;
 
     tasks.value.splice(draggedTaskIndex.value, 1);
     tasks.value.splice(targetIndex, 0, draggedTask);
