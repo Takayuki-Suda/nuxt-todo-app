@@ -28,7 +28,7 @@
         <!-- ボタンとタスクリストを一つの枠で囲む -->
         <div class="task-container border p-3">
           <!-- タスク管理ボタン -->
-          <div class="mb-3">
+          <div class="mb-3 d-flex align-items-center">
             <button
               class="btn btn-danger me-3"
               @click="removeSelectedTasks"
@@ -37,22 +37,17 @@
               タスクを削除
             </button>
             <button
-              class="btn btn-secondary"
+              class="btn btn-secondary me-3"
               @click="deselectAllTasks"
               :disabled="!selectedTasks.length"
             >
               選択されたタスクをクリア
             </button>
-          </div>
 
-          <!-- タスク表示件数の選択 -->
-          <div class="mb-3">
-            <label for="tasksPerPage" class="form-label"
-              >タスクの表示件数</label
-            >
+            <!-- ここにセレクトボックスを配置 -->
             <select
               id="tasksPerPage"
-              class="form-select"
+              class="form-select form-select-sm"
               v-model="tasksPerPage"
               @change="resetPage"
             >
@@ -379,5 +374,8 @@ const onDrop = (index: number) => {
   background-color: rgba(0, 123, 255, 0.1);
   border: 2px solid #007bff;
   box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+}
+.form-select {
+  width: 100px;
 }
 </style>
