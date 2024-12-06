@@ -72,6 +72,8 @@
                 dragging:
                   draggingTaskIndex ===
                   index + (currentPage - 1) * tasksPerPage,
+                'dragging-up': isDraggingUp(index),
+                'dragging-down': isDraggingDown(index),
               }"
               @dragstart="onDragStart(index)"
               @dragover.prevent="onDragOver(index)"
@@ -166,33 +168,8 @@
         </div>
       </div>
     </div>
-
-    <!-- トースト通知 -->
-    <div
-      v-if="showToast"
-      class="position-fixed top-0 end-0 p-3"
-      style="z-index: 1050; width: 300px; transition: opacity 0.5s ease-out"
-    >
-      <div
-        class="toast show"
-        role="alert"
-        aria-live="assertive"
-        aria-atomic="true"
-        :class="toastType"
-      >
-        <div class="toast-header">
-          <strong class="me-auto">{{ toastMessage }}</strong>
-          <button
-            type="button"
-            class="btn-close"
-            @click="showToast = false"
-          ></button>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
-
 <script lang="ts" setup>
 import { ref, computed, watch, onMounted } from "vue";
 
@@ -216,6 +193,7 @@ const taskDisplayOptions = [5, 10, 20]; // ユーザーが選択できるタス�
 // ドラッグ＆ドロップ用の状態
 const draggedTaskIndex = ref<number | null>(null);
 const draggingTaskIndex = ref<number | null>(null); // 現在ドラッグ中のタスクインデックスを保持
+const dragDirection = ref<"up" | "down" | "">(""); // ドラッグ方向を保持
 
 // ページネーション計算
 const totalPages = computed(() =>
@@ -334,8 +312,13 @@ const onDragStart = (index: number) => {
 
 // ドラッグオーバー時の処理
 const onDragOver = (index: number) => {
-  draggingTaskIndex.value =
-    index + (currentPage.value - 1) * tasksPerPage.value;
+  const targetIndex = index + (currentPage.value - 1) * tasksPerPage.value;
+  if (targetIndex < draggedTaskIndex.value) {
+    dragDirection.value = "up";
+  } else if (targetIndex > draggedTaskIndex.value) {
+    dragDirection.value = "down";
+  }
+  draggingTaskIndex.value = targetIndex;
 };
 
 // ドロップ時の処理
@@ -349,9 +332,24 @@ const onDrop = (index: number) => {
     saveTasks();
   }
   draggingTaskIndex.value = null; // ドロップ後にインデックスをリセット
+  dragDirection.value = ""; // ドラッグ方向をリセット
+};
+
+// タスクがドラッグ中かどうかの判定
+const isDraggingTask = (index: number) => {
+  return draggingTaskIndex.value === index;
+};
+
+// 上方向にドラッグしているかを判定
+const isDraggingUp = (index: number) => {
+  return dragDirection.value === "up" && draggingTaskIndex.value === index;
+};
+
+// 下方向にドラッグしているかを判定
+const isDraggingDown = (index: number) => {
+  return dragDirection.value === "down" && draggingTaskIndex.value === index;
 };
 </script>
-
 <style scoped>
 .container {
   max-width: 600px;
@@ -371,9 +369,17 @@ const onDrop = (index: number) => {
 }
 
 .dragging {
-  background-color: rgba(0, 123, 255, 0.1);
+  background-color: rgba(0, 123, 255, 0.2);
   border: 2px solid #007bff;
   box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+}
+
+.dragging-up {
+  border-top: 3px solid red;
+}
+
+.dragging-down {
+  border-bottom: 3px solid red;
 }
 .form-select {
   width: 100px;
