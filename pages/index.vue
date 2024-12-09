@@ -330,12 +330,15 @@ const resetPage = () => {
 
 // ドラッグ開始時の処理
 const onDragStart = (index: number) => {
-  draggedTaskIndex.value = index + (currentPage.value - 1) * tasksPerPage.value;
-  draggingTaskIndex.value = draggedTaskIndex.value;
+  // 現在のページを考慮したインデックス
+  const fullIndex = index + (currentPage.value - 1) * tasksPerPage.value;
+  draggedTaskIndex.value = fullIndex;
+  draggingTaskIndex.value = fullIndex;
 };
 
 // ドラッグオーバー時の処理
 const onDragOver = (index: number) => {
+  // 現在のページを考慮したインデックス
   const targetIndex = index + (currentPage.value - 1) * tasksPerPage.value;
   if (targetIndex < draggedTaskIndex.value) {
     dragDirection.value = "up";
@@ -349,6 +352,7 @@ const onDragOver = (index: number) => {
 const onDrop = (index: number) => {
   if (draggedTaskIndex.value !== null && draggedTaskIndex.value !== index) {
     const draggedTask = tasks.value[draggedTaskIndex.value];
+    // ドロップ先インデックスも全タスクのインデックスで計算
     const targetIndex = index + (currentPage.value - 1) * tasksPerPage.value;
 
     tasks.value.splice(draggedTaskIndex.value, 1);
@@ -359,19 +363,18 @@ const onDrop = (index: number) => {
   dragDirection.value = ""; // ドラッグ方向をリセット
 };
 
-// タスクがドラッグ中かどうかの判定
-const isDraggingTask = (index: number) => {
-  return draggingTaskIndex.value === index;
-};
-
 // 上方向にドラッグしているかを判定
 const isDraggingUp = (index: number) => {
-  return dragDirection.value === "up" && draggingTaskIndex.value === index;
+  const fullIndex = index + (currentPage.value - 1) * tasksPerPage.value;
+  return dragDirection.value === "up" && draggingTaskIndex.value === fullIndex;
 };
 
 // 下方向にドラッグしているかを判定
 const isDraggingDown = (index: number) => {
-  return dragDirection.value === "down" && draggingTaskIndex.value === index;
+  const fullIndex = index + (currentPage.value - 1) * tasksPerPage.value;
+  return (
+    dragDirection.value === "down" && draggingTaskIndex.value === fullIndex
+  );
 };
 </script>
 <style scoped>
