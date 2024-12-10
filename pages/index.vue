@@ -66,14 +66,19 @@
             <div
               v-for="(task, index) in paginatedTasks"
               :key="task.text"
-              class="list-group-item d-flex align-items-center justify-content-between"
+              class="list-group-item d-flex align-items-center justify-content-between position-relative"
               draggable="true"
               :class="{
                 dragging:
+                  draggedTaskIndex === index + (currentPage - 1) * tasksPerPage,
+                'dragging-up':
                   draggingTaskIndex ===
-                  index + (currentPage - 1) * tasksPerPage,
-                'dragging-up': isDraggingUp(index),
-                'dragging-down': isDraggingDown(index),
+                    index + (currentPage - 1) * tasksPerPage &&
+                  dragDirection === 'up',
+                'dragging-down':
+                  draggingTaskIndex ===
+                    index + (currentPage - 1) * tasksPerPage &&
+                  dragDirection === 'down',
               }"
               @dragstart="onDragStart(index)"
               @dragover.prevent="onDragOver(index)"
@@ -338,29 +343,30 @@ const onDragStart = (index: number) => {
 
 // ドラッグオーバー時の処理
 const onDragOver = (index: number) => {
-  // 現在のページを考慮したインデックス
-  const targetIndex = index + (currentPage.value - 1) * tasksPerPage.value;
-  if (targetIndex < draggedTaskIndex.value) {
-    dragDirection.value = "up";
-  } else if (targetIndex > draggedTaskIndex.value) {
-    dragDirection.value = "down";
+  const fullIndex = index + (currentPage.value - 1) * tasksPerPage.value;
+
+  if (draggedTaskIndex.value !== null) {
+    dragDirection.value = fullIndex < draggedTaskIndex.value ? "up" : "down";
+    draggingTaskIndex.value = fullIndex; // ページ全体でのインデックス
   }
-  draggingTaskIndex.value = targetIndex;
 };
 
 // ドロップ時の処理
 const onDrop = (index: number) => {
-  if (draggedTaskIndex.value !== null && draggedTaskIndex.value !== index) {
+  if (draggedTaskIndex.value !== null && draggingTaskIndex.value !== null) {
     const draggedTask = tasks.value[draggedTaskIndex.value];
-    // ドロップ先インデックスも全タスクのインデックスで計算
     const targetIndex = index + (currentPage.value - 1) * tasksPerPage.value;
 
+    // 現在のタスクを移動
     tasks.value.splice(draggedTaskIndex.value, 1);
     tasks.value.splice(targetIndex, 0, draggedTask);
+
     saveTasks();
   }
-  draggingTaskIndex.value = null; // ドロップ後にインデックスをリセット
-  dragDirection.value = ""; // ドラッグ方向をリセット
+  // ドロップ後のリセット
+  draggedTaskIndex.value = null;
+  draggingTaskIndex.value = null;
+  dragDirection.value = "";
 };
 
 // 上方向にドラッグしているかを判定
@@ -394,20 +400,32 @@ const isDraggingDown = (index: number) => {
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
-
 .dragging {
-  background-color: rgba(0, 123, 255, 0.2);
-  border: 2px solid #007bff;
-  box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+  background-color: rgba(0, 123, 255, 0.2); /* 青い枠 */
+  border: 2px solid #007bff; /* 青い枠の強調 */
+  box-shadow: 0 0 10px rgba(0, 123, 255, 0.5); /* 青い枠の影 */
 }
 
-.dragging-up {
-  border-top: 3px solid red;
+.dragging-up::before,
+.dragging-down::after {
+  content: "";
+  display: block;
+  position: absolute;
+  height: 3px;
+  background-color: red; /* 赤い線 */
+  left: 0;
+  right: 0;
+  z-index: 1;
 }
 
-.dragging-down {
-  border-bottom: 3px solid red;
+.dragging-up::before {
+  top: 0; /* 上に赤い線 */
 }
+
+.dragging-down::after {
+  bottom: 0; /* 下に赤い線 */
+}
+
 .form-select {
   width: 100px;
 }
