@@ -105,33 +105,11 @@
       </div>
 
       <!-- ページネーション -->
-      <nav aria-label="Task pagination" class="mt-3">
-        <ul class="pagination justify-content-center">
-          <li class="page-item" :class="{ disabled: currentPage === 1 }">
-            <button class="page-link" @click="changePage(currentPage - 1)">
-              前へ
-            </button>
-          </li>
-          <li
-            v-for="page in totalPages"
-            :key="page"
-            class="page-item"
-            :class="{ active: currentPage === page }"
-          >
-            <button class="page-link" @click="changePage(page)">
-              {{ page }}
-            </button>
-          </li>
-          <li
-            :class="{ disabled: currentPage === totalPages }"
-            class="page-item"
-          >
-            <button class="page-link" @click="changePage(currentPage + 1)">
-              次へ
-            </button>
-          </li>
-        </ul>
-      </nav>
+  <Pagination
+    :currentPage="currentPage"
+    :totalPages="totalPages"
+    @changePage="changePage"
+  />
     </div>
   </div>
 
@@ -184,6 +162,7 @@
 <script setup lang="ts">
 import { useTasks } from "../composables/useTasks";
 import ToastNotification from './ToastNotification.vue';
+import Pagination from './Pagination.vue';
 
 const {
   tasks,
