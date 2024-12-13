@@ -113,41 +113,8 @@
     </div>
   </div>
 
-  <!-- 編集モーダル -->
-  <div
-    v-if="isEditModalVisible"
-    class="modal fade show"
-    tabindex="-1"
-    style="display: block; background: rgba(0, 0, 0, 0.5)"
-    role="dialog"
-  >
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">タスクを編集</h5>
-          <button
-            type="button"
-            class="btn-close"
-            @click="closeEditModal"
-          ></button>
-        </div>
-        <div class="modal-body">
-          <input
-            v-model="currentEditTask"
-            type="text"
-            class="form-control"
-            placeholder="タスクを編集してください"
-          />
-        </div>
-        <div class="modal-footer">
-          <button class="btn btn-secondary" @click="closeEditModal">
-            キャンセル
-          </button>
-          <button class="btn btn-primary" @click="saveEditTask">保存</button>
-        </div>
-      </div>
-    </div>
-  </div>
+ <!-- 編集モーダル --> 
+ <EditModal :isEditModalVisible="isEditModalVisible" :currentEditTask="currentEditTask" @closeEditModal="closeEditModal" @saveEditTask="saveEditTask" @update:currentEditTask="currentEditTask = $event" />
 
   <!-- トースト通知 -->
   <ToastNotification
@@ -163,6 +130,7 @@
 import { useTasks } from "../composables/useTasks";
 import ToastNotification from './ToastNotification.vue';
 import Pagination from './Pagination.vue';
+import EditModal from './EditModal.vue';
 
 const {
   tasks,
