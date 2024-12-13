@@ -6,15 +6,15 @@
       class="list-group-item d-flex align-items-center justify-content-between position-relative"
       draggable="true"
       :class="getDraggingClasses(index)"
-      @dragstart="$emit('dragStart', index)"
-      @dragover.prevent="$emit('dragOver', index)"
-      @drop="$emit('drop', index)"
+      @dragstart="onDragStart(index)"
+      @dragover.prevent="onDragOver(index)"
+      @drop="onDrop(index)"
     >
       <div>
         <input
           type="checkbox"
           class="form-check-input me-3"
-          :checked="state.selectedTasks.includes(index + (state.currentPage - 1) * state.tasksPerPage)"
+          :checked="state.selectedTasks.includes(getFullIndex(index))"
           @change="updateSelectedTasks(index)"
         />
         <span :class="{ 'text-decoration-line-through': task.completed }">
@@ -32,46 +32,67 @@
 </template>
 
 <script setup lang="ts">
-import type { Task, TaskState } from '~/types/task';
+import { useTaskDragDrop } from "~/composables/task/useTaskDragDrop";
+import { ref } from "vue";
+import type { TaskState, Task } from "~/types/task";
 
+// props の定義
 const props = defineProps<{
   state: TaskState;
   paginatedTasks: Task[];
-  draggedTaskIndex: number | null;
-  draggingTaskIndex: number | null;
-  dragDirection: 'up' | 'down' | null | '';
 }>();
 
 const emit = defineEmits<{
-  'dragStart': [index: number];
-  'dragOver': [index: number];
-  'drop': [index: number];
-  'editTask': [index: number];
+  editTask: [index: number];
 }>();
 
+// ページネーションを考慮したタスクインデックスを計算
+const getFullIndex = (index: number) => {
+  return index + (props.state.currentPage - 1) * props.state.tasksPerPage;
+};
+
+// タスクのドラッグアンドドロップ処理のセットアップ
+const {
+  draggedTaskIndex,
+  draggingTaskIndex,
+  dragDirection,
+  onDragStart,
+  onDragOver,
+  onDrop,
+} = useTaskDragDrop(ref(props.state), () => {
+  // タスク保存処理をここで定義
+  console.log("Tasks saved");
+});
+
+// ドラッグしているタスクに適用するクラスを取得
+const getDraggingClasses = (index: number) => ({
+  dragging: draggedTaskIndex.value === getFullIndex(index),
+  "dragging-up":
+    draggingTaskIndex.value === getFullIndex(index) &&
+    dragDirection.value === "up",
+  "dragging-down":
+    draggingTaskIndex.value === getFullIndex(index) &&
+    dragDirection.value === "down",
+});
+
+// タスク選択更新処理
 const updateSelectedTasks = (index: number) => {
-  const actualIndex = index + (props.state.currentPage - 1) * props.state.tasksPerPage;
-  
+  const actualIndex = getFullIndex(index);
   const newSelectedTasks = [...props.state.selectedTasks];
   const indexInArray = newSelectedTasks.indexOf(actualIndex);
-  
+
   if (indexInArray === -1) {
     newSelectedTasks.push(actualIndex);
   } else {
     newSelectedTasks.splice(indexInArray, 1);
   }
-  
+
   props.state.selectedTasks = newSelectedTasks;
 };
-
-const getDraggingClasses = (index: number) => ({
-  dragging: props.draggedTaskIndex === index,
-  'dragging-up': props.draggingTaskIndex === index && props.dragDirection === 'up',
-  'dragging-down': props.draggingTaskIndex === index && props.dragDirection === 'down',
-});
 </script>
 
 <style scoped>
+/* ドラッグ中のタスクのスタイル */
 .dragging {
   background-color: rgba(0, 123, 255, 0.2);
   border: 2px solid #007bff;
@@ -97,4 +118,4 @@ const getDraggingClasses = (index: number) => ({
 .dragging-down::after {
   bottom: 0;
 }
-</style> 
+</style>
