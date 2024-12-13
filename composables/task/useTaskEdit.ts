@@ -1,34 +1,30 @@
 import type { Ref } from 'vue';
+import type { TaskState } from '~/types/task';
 
 export function useTaskEdit(
-  tasks: Ref<{ text: string; completed: boolean }[]>,
-  currentPage: Ref<number>,
-  tasksPerPage: Ref<number>,
-  isEditModalVisible: Ref<boolean>,
-  currentEditTaskIndex: Ref<number | null>,
-  currentEditTask: Ref<string>,
+  state: Ref<TaskState>,
   showToastMessage: (message: string, type: string) => void,
   saveTasks: () => void
 ) {
   const openEditModal = (index: number) => {
-    const pageOffset = (currentPage.value - 1) * tasksPerPage.value;
-    const actualIndex = pageOffset + (index % tasksPerPage.value);
+    const pageOffset = (state.value.currentPage - 1) * state.value.tasksPerPage;
+    const actualIndex = pageOffset + (index % state.value.tasksPerPage);
     
-    if (actualIndex >= 0 && actualIndex < tasks.value.length) {
-      currentEditTaskIndex.value = actualIndex;
-      currentEditTask.value = tasks.value[actualIndex].text;
-      isEditModalVisible.value = true;
+    if (actualIndex >= 0 && actualIndex < state.value.tasks.length) {
+      state.value.currentEditTaskIndex = actualIndex;
+      state.value.currentEditTask = state.value.tasks[actualIndex].text;
+      state.value.isEditModalVisible = true;
     }
   };
 
   const closeEditModal = () => {
-    isEditModalVisible.value = false;
-    currentEditTaskIndex.value = null;
+    state.value.isEditModalVisible = false;
+    state.value.currentEditTaskIndex = null;
   };
 
   const saveEditTask = () => {
-    if (currentEditTaskIndex.value !== null) {
-      tasks.value[currentEditTaskIndex.value].text = currentEditTask.value;
+    if (state.value.currentEditTaskIndex !== null) {
+      state.value.tasks[state.value.currentEditTaskIndex].text = state.value.currentEditTask;
       saveTasks();
       showToastMessage("タスクが更新されました！", "bg-info");
       closeEditModal();

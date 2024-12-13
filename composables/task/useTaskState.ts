@@ -1,29 +1,24 @@
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
+import type { TaskState } from '~/types/task';
 
 export function useTaskState() {
-  const tasks = ref<{ text: string; completed: boolean }[]>([]);
-  const newTask = ref("");
-  const selectedTasks = ref<number[]>([]);
+  // 初期状態を定義
+  const initialState: TaskState = {
+    tasks: [],
+    newTask: "",
+    selectedTasks: [],
+    isEditModalVisible: false,
+    currentEditTaskIndex: null,
+    currentEditTask: "",
+    currentPage: 1,
+    tasksPerPage: 5
+  };
 
-  // 編集モーダル用の状態
-  const isEditModalVisible = ref(false);
-  const currentEditTaskIndex = ref<number | null>(null);
-  const currentEditTask = ref("");
-
-  // ページネーション用の状態
-  const currentPage = ref(1);
-  const tasksPerPage = ref(5);
+  const state = ref<TaskState>(initialState);
   const taskDisplayOptions = [5, 10, 20];
 
   return {
-    tasks,
-    newTask,
-    selectedTasks,
-    isEditModalVisible,
-    currentEditTaskIndex,
-    currentEditTask,
-    currentPage,
-    tasksPerPage,
+    state,
     taskDisplayOptions,
   };
 } 

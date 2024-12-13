@@ -1,10 +1,9 @@
 import { ref } from 'vue';
 import type { Ref } from 'vue';
+import type { TaskState } from '~/types/task';
 
 export function useTaskDragDrop(
-  tasks: Ref<{ text: string; completed: boolean }[]>,
-  currentPage: Ref<number>,
-  tasksPerPage: Ref<number>,
+  state: Ref<TaskState>,
   saveTasks: () => void
 ) {
   const draggedTaskIndex = ref<number | null>(null);
@@ -12,13 +11,13 @@ export function useTaskDragDrop(
   const dragDirection = ref<"up" | "down" | "">("");
 
   const onDragStart = (index: number) => {
-    const fullIndex = index + (currentPage.value - 1) * tasksPerPage.value;
+    const fullIndex = index + (state.value.currentPage - 1) * state.value.tasksPerPage;
     draggedTaskIndex.value = fullIndex;
     draggingTaskIndex.value = fullIndex;
   };
 
   const onDragOver = (index: number) => {
-    const fullIndex = index + (currentPage.value - 1) * tasksPerPage.value;
+    const fullIndex = index + (state.value.currentPage - 1) * state.value.tasksPerPage;
 
     if (draggedTaskIndex.value !== null) {
       dragDirection.value = fullIndex < draggedTaskIndex.value ? "up" : "down";
@@ -28,11 +27,11 @@ export function useTaskDragDrop(
 
   const onDrop = (index: number) => {
     if (draggedTaskIndex.value !== null && draggingTaskIndex.value !== null) {
-      const draggedTask = tasks.value[draggedTaskIndex.value];
-      const targetIndex = index + (currentPage.value - 1) * tasksPerPage.value;
+      const draggedTask = state.value.tasks[draggedTaskIndex.value];
+      const targetIndex = index + (state.value.currentPage - 1) * state.value.tasksPerPage;
 
-      tasks.value.splice(draggedTaskIndex.value, 1);
-      tasks.value.splice(targetIndex, 0, draggedTask);
+      state.value.tasks.splice(draggedTaskIndex.value, 1);
+      state.value.tasks.splice(targetIndex, 0, draggedTask);
 
       saveTasks();
     }

@@ -1,26 +1,23 @@
 import { watch } from 'vue';
 import type { Ref } from 'vue';
+import type { TaskState } from '~/types/task';
 
 export function useTaskOperations(
-  tasks: Ref<{ text: string; completed: boolean }[]>,
-  newTask: Ref<string>,
-  selectedTasks: Ref<number[]>,
-  currentPage: Ref<number>,
-  tasksPerPage: Ref<number>,
+  state: Ref<TaskState>,
   showToastMessage: (message: string, type: string) => void
 ) {
   const addTask = () => {
     try {
-      const trimmedTask = newTask.value.trim();
+      const trimmedTask = state.value.newTask.trim();
       if (!trimmedTask) return;
       
-      if (tasks.value.some((task) => task?.text === trimmedTask)) {
+      if (state.value.tasks.some((task) => task?.text === trimmedTask)) {
         showToastMessage("タスクが重複しています！", "bg-warning");
         return;
       }
       
-      tasks.value.push({ text: trimmedTask, completed: false });
-      newTask.value = "";
+      state.value.tasks.push({ text: trimmedTask, completed: false });
+      state.value.newTask = "";
       saveTasks();
       showToastMessage("タスクが正常に追加されました！", "bg-success");
     } catch (error) {
@@ -30,36 +27,38 @@ export function useTaskOperations(
   };
 
   const removeSelectedTasks = () => {
-    const actualIndexes = selectedTasks.value.map(selectedIndex => {
-      const pageOffset = (currentPage.value - 1) * tasksPerPage.value;
-      return pageOffset + (selectedIndex % tasksPerPage.value);
+    const actualIndexes = state.value.selectedTasks.map(selectedIndex => {
+      const pageOffset = (state.value.currentPage - 1) * state.value.tasksPerPage;
+      return pageOffset + (selectedIndex % state.value.tasksPerPage);
     });
 
     const sortedIndexes = [...actualIndexes].sort((a, b) => b - a);
     
     for (const index of sortedIndexes) {
-      if (index >= 0 && index < tasks.value.length) {
-        tasks.value.splice(index, 1);
+      if (index >= 0 && index < state.value.tasks.length) {
+        state.value.tasks.splice(index, 1);
       }
     }
 
-    selectedTasks.value = [];
+    state.value.selectedTasks = [];
     saveTasks();
     showToastMessage("タスクが削除されました！", "bg-danger");
   };
 
   const saveTasks = () => {
-    localStorage.setItem("tasks", JSON.stringify(tasks.value));
+    if (process.client) {
+      localStorage.setItem("tasks", JSON.stringify(state.value.tasks));
+    }
   };
 
-  watch(tasks, saveTasks, { deep: true });
+  watch(() => state.value.tasks, saveTasks, { deep: true });
 
   const clearInput = () => {
-    newTask.value = "";
+    state.value.newTask = "";
   };
 
   const deselectAllTasks = () => {
-    selectedTasks.value = [];
+    state.value.selectedTasks = [];
   };
 
   return {

@@ -1,31 +1,29 @@
 <template>
   <div class="list-group">
     <div
-      v-for="(task, index) in tasks"
-      :key="task?.text || index"
+      v-for="(task, index) in paginatedTasks"
+      :key="task.text"
       class="list-group-item d-flex align-items-center justify-content-between position-relative"
       draggable="true"
-      :class="getDraggingClasses(getActualIndex(index))"
-      @dragstart="$emit('dragStart', getActualIndex(index))"
-      @dragover.prevent="$emit('dragOver', getActualIndex(index))"
-      @drop="$emit('drop', getActualIndex(index))"
+      :class="getDraggingClasses(index)"
+      @dragstart="$emit('dragStart', index)"
+      @dragover.prevent="$emit('dragOver', index)"
+      @drop="$emit('drop', index)"
     >
-      <div v-if="task">
+      <div>
         <input
           type="checkbox"
           class="form-check-input me-3"
-          :value="getActualIndex(index)"
-          :checked="selectedTasks.includes(getActualIndex(index))"
-          @change="updateSelectedTasks(getActualIndex(index))"
+          :checked="state.selectedTasks.includes(index + (state.currentPage - 1) * state.tasksPerPage)"
+          @change="updateSelectedTasks(index)"
         />
         <span :class="{ 'text-decoration-line-through': task.completed }">
           {{ task.text }}
         </span>
       </div>
       <button
-        v-if="task"
         class="btn btn-secondary btn-sm"
-        @click="$emit('editTask', getActualIndex(index))"
+        @click="$emit('editTask', index)"
       >
         編集
       </button>
@@ -34,19 +32,14 @@
 </template>
 
 <script setup lang="ts">
-interface Task {
-  text: string;
-  completed: boolean;
-}
+import type { Task, TaskState } from '~/types/task';
 
 const props = defineProps<{
-  tasks: (Task | null)[];
-  selectedTasks: number[];
+  state: TaskState;
+  paginatedTasks: Task[];
   draggedTaskIndex: number | null;
   draggingTaskIndex: number | null;
   dragDirection: 'up' | 'down' | null | '';
-  currentPage: number;
-  tasksPerPage: number;
 }>();
 
 const emit = defineEmits<{
@@ -54,25 +47,21 @@ const emit = defineEmits<{
   'dragOver': [index: number];
   'drop': [index: number];
   'editTask': [index: number];
-  'update:selectedTasks': [selectedTasks: number[]];
 }>();
 
-const getActualIndex = (index: number) => {
-  const start = (props.currentPage - 1) * props.tasksPerPage;
-  return start + index;
-};
-
 const updateSelectedTasks = (index: number) => {
-  const newSelectedTasks = [...props.selectedTasks];
-  const indexInArray = newSelectedTasks.indexOf(index);
+  const actualIndex = index + (props.state.currentPage - 1) * props.state.tasksPerPage;
+  
+  const newSelectedTasks = [...props.state.selectedTasks];
+  const indexInArray = newSelectedTasks.indexOf(actualIndex);
   
   if (indexInArray === -1) {
-    newSelectedTasks.push(index);
+    newSelectedTasks.push(actualIndex);
   } else {
     newSelectedTasks.splice(indexInArray, 1);
   }
   
-  emit('update:selectedTasks', newSelectedTasks);
+  props.state.selectedTasks = newSelectedTasks;
 };
 
 const getDraggingClasses = (index: number) => ({

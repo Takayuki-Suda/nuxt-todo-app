@@ -2,58 +2,54 @@
   <div class="row">
     <div class="col-12">
       <TaskInput
-        v-model="newTask"
-        @add-task="addTask"
-        @clear-input="clearInput"
+        v-model="taskState.state.newTask"
+        @add-task="operations.addTask"
+        @clear-input="operations.clearInput"
       />
 
       <div class="task-container border p-3">
         <TaskControls
-          :selected-tasks-count="selectedTasks.length"
-          v-model:tasks-per-page="tasksPerPage"
-          :task-display-options="taskDisplayOptions"
-          @remove-selected-tasks="removeSelectedTasks"
-          @deselect-all-tasks="deselectAllTasks"
-          @update:tasks-per-page="(value) => { tasksPerPage = value; resetPage(); }"
+          :selected-tasks-count="taskState.state.selectedTasks.length"
+          v-model:tasks-per-page="taskState.state.tasksPerPage"
+          :task-display-options="taskState.taskDisplayOptions"
+          @remove-selected-tasks="operations.removeSelectedTasks"
+          @deselect-all-tasks="operations.deselectAllTasks"
         />
 
         <TaskList
-          :tasks="paginatedTasks"
-          :selected-tasks="selectedTasks"
-          :dragged-task-index="draggedTaskIndex"
-          :dragging-task-index="draggingTaskIndex"
-          :drag-direction="dragDirection"
-          :current-page="currentPage"
-          :tasks-per-page="tasksPerPage"
-          @drag-start="onDragStart"
-          @drag-over="onDragOver"
-          @drop="onDrop"
-          @edit-task="openEditModal"
-          @update:selected-tasks="selectedTasks = $event"
+          :state="taskState.state"
+          :paginated-tasks="taskState.paginatedTasks"
+          :dragged-task-index="taskState.draggedTaskIndex"
+          :dragging-task-index="taskState.draggingTaskIndex"
+          :drag-direction="taskState.dragDirection"
+          @drag-start="operations.onDragStart"
+          @drag-over="operations.onDragOver"
+          @drop="operations.onDrop"
+          @edit-task="operations.openEditModal"
         />
       </div>
 
       <Pagination
-        :current-page="currentPage"
-        :total-pages="totalPages"
-        @change-page="changePage"
+        :current-page="taskState.state.currentPage"
+        :total-pages="taskState.totalPages"
+        @change-page="page => taskState.state.currentPage = page"
       />
     </div>
   </div>
 
   <EditModal
-    :is-edit-modal-visible="isEditModalVisible"
-    :current-edit-task="currentEditTask"
-    @close-edit-modal="closeEditModal"
-    @save-edit-task="saveEditTask"
-    @update:current-edit-task="currentEditTask = $event"
+    :is-edit-modal-visible="taskState.state.isEditModalVisible"
+    :current-edit-task="taskState.state.currentEditTask"
+    @close-edit-modal="operations.closeEditModal"
+    @save-edit-task="operations.saveEditTask"
+    @update:current-edit-task="value => taskState.state.currentEditTask = value"
   />
 
   <ToastNotification
-    :show-toast="showToast"
-    :toast-type="toastType"
-    :toast-message="toastMessage"
-    @close="showToast = false"
+    :show-toast="taskState.showToast"
+    :toast-type="taskState.toastType"
+    :toast-message="taskState.toastMessage"
+    @close="taskState.showToast = false"
   />
 </template>
 
@@ -66,39 +62,7 @@ import ToastNotification from './ToastNotification.vue';
 import Pagination from './Pagination.vue';
 import EditModal from './EditModal.vue';
 
-const {
-  tasks,
-  newTask,
-  showToast,
-  toastType,
-  toastMessage,
-  selectedTasks,
-  isEditModalVisible,
-  currentEditTaskIndex,
-  currentEditTask,
-  currentPage,
-  tasksPerPage,
-  taskDisplayOptions,
-  draggedTaskIndex,
-  draggingTaskIndex,
-  dragDirection,
-  totalPages,
-  paginatedTasks,
-  addTask,
-  changePage,
-  removeSelectedTasks,
-  openEditModal,
-  closeEditModal,
-  saveEditTask,
-  showToastMessage,
-  saveTasks,
-  deselectAllTasks,
-  clearInput,
-  resetPage,
-  onDragStart,
-  onDragOver,
-  onDrop,
-} = useTasks();
+const { taskState, operations } = useTasks();
 </script>
 
 <style scoped>

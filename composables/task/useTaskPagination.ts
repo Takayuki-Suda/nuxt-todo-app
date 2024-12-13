@@ -1,44 +1,23 @@
 import { computed } from 'vue';
 import type { Ref } from 'vue';
+import type { TaskState } from '~/types/task';
 
-export function useTaskPagination(
-  tasks: Ref<{ text: string; completed: boolean }[]>,
-  currentPage: Ref<number>,
-  tasksPerPage: Ref<number>,
-  selectedTasks: Ref<number[]>
-) {
+export function useTaskPagination(state: Ref<TaskState>) {
   const totalPages = computed(() => {
-    const validTasks = tasks.value.filter(task => task !== null);
-    return Math.max(1, Math.ceil(validTasks.length / tasksPerPage.value));
+    return Math.max(1, Math.ceil(state.value.tasks.length / state.value.tasksPerPage));
   });
 
   const paginatedTasks = computed(() => {
-    if (!tasks.value || tasks.value.length === 0) {
-      return [];
-    }
+    if (!state.value.tasks.length) return [];
 
-    const validTasks = tasks.value.filter(task => task !== null);
-    const start = (currentPage.value - 1) * tasksPerPage.value;
-    const end = start + tasksPerPage.value;
+    const start = (state.value.currentPage - 1) * state.value.tasksPerPage;
+    const end = start + state.value.tasksPerPage;
 
-    return validTasks.slice(start, end);
+    return state.value.tasks.slice(start, end);
   });
-
-  const changePage = (page: number) => {
-    if (page >= 1 && page <= totalPages.value) {
-      currentPage.value = page;
-    }
-  };
-
-  const resetPage = () => {
-    currentPage.value = 1;
-    selectedTasks.value = [];
-  };
 
   return {
     totalPages,
     paginatedTasks,
-    changePage,
-    resetPage,
   };
 } 
