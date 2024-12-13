@@ -30,11 +30,9 @@ defineProps({
   toastMessage: String,
 });
 
-defineEmits(['close']);
+defineEmits(["close"]);
 </script>
 
 <style scoped>
-.toast {
-  transition: opacity 0.5s ease-out;
-}
+@import "@/assets/css/toast-style.css";
 </style>

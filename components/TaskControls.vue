@@ -19,7 +19,12 @@
       id="tasksPerPage"
       class="form-select form-select-sm"
       :value="tasksPerPage"
-      @change="$emit('update:tasksPerPage', Number(($event.target as HTMLSelectElement).value))"
+      @change="
+        $emit(
+          'update:tasksPerPage',
+          Number(($event.target as HTMLSelectElement).value)
+        )
+      "
     >
       <option
         v-for="option in taskDisplayOptions"
@@ -40,14 +45,12 @@ defineProps<{
 }>();
 
 defineEmits<{
-  'removeSelectedTasks': [];
-  'deselectAllTasks': [];
-  'update:tasksPerPage': [value: number];
+  removeSelectedTasks: [];
+  deselectAllTasks: [];
+  "update:tasksPerPage": [value: number];
 }>();
 </script>
 
 <style scoped>
-.form-select {
-  width: 100px;
-}
-</style> 
+@import "@/assets/css/form-select-style.css";
+</style>

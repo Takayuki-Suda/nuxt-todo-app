@@ -3,7 +3,9 @@
     <div class="input-group">
       <input
         :value="modelValue"
-        @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
+        @input="
+          $emit('update:modelValue', ($event.target as HTMLInputElement).value)
+        "
         type="text"
         class="form-control"
         placeholder="新しいタスクを入力"
@@ -29,22 +31,18 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  'update:modelValue': [value: string];
-  'addTask': [];
-  'clearInput': [];
+  "update:modelValue": [value: string];
+  addTask: [];
+  clearInput: [];
 }>();
 
 const handleAddTask = () => {
   if (props.modelValue.trim()) {
-    emit('addTask');
+    emit("addTask");
   }
 };
 </script>
 
 <style scoped>
-.input-container {
-  border: 2px solid #ddd;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-</style> 
+@import "@/assets/css/input-container-style.css";
+</style>

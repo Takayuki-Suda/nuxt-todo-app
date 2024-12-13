@@ -92,30 +92,5 @@ const updateSelectedTasks = (index: number) => {
 </script>
 
 <style scoped>
-/* ドラッグ中のタスクのスタイル */
-.dragging {
-  background-color: rgba(0, 123, 255, 0.2);
-  border: 2px solid #007bff;
-  box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
-}
-
-.dragging-up::before,
-.dragging-down::after {
-  content: "";
-  display: block;
-  position: absolute;
-  height: 3px;
-  background-color: red;
-  left: 0;
-  right: 0;
-  z-index: 1;
-}
-
-.dragging-up::before {
-  top: 0;
-}
-
-.dragging-down::after {
-  bottom: 0;
-}
+@import "@/assets/css/dragging-style.css";
 </style>

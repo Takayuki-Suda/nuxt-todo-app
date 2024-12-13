@@ -32,7 +32,7 @@
       <Pagination
         :current-page="taskState.state.currentPage"
         :total-pages="taskState.totalPages"
-        @change-page="page => taskState.state.currentPage = page"
+        @change-page="(page) => (taskState.state.currentPage = page)"
       />
     </div>
   </div>
@@ -42,7 +42,9 @@
     :current-edit-task="taskState.state.currentEditTask"
     @close-edit-modal="operations.closeEditModal"
     @save-edit-task="operations.saveEditTask"
-    @update:current-edit-task="value => taskState.state.currentEditTask = value"
+    @update:current-edit-task="
+      (value) => (taskState.state.currentEditTask = value)
+    "
   />
 
   <ToastNotification
@@ -55,20 +57,16 @@
 
 <script setup lang="ts">
 import { useTasks } from "../composables/useTasks";
-import TaskInput from './TaskInput.vue';
-import TaskControls from './TaskControls.vue';
-import TaskList from './TaskList.vue';
-import ToastNotification from './ToastNotification.vue';
-import Pagination from './Pagination.vue';
-import EditModal from './EditModal.vue';
+import TaskInput from "./TaskInput.vue";
+import TaskControls from "./TaskControls.vue";
+import TaskList from "./TaskList.vue";
+import ToastNotification from "./ToastNotification.vue";
+import Pagination from "./Pagination.vue";
+import EditModal from "./EditModal.vue";
 
 const { taskState, operations } = useTasks();
 </script>
 
 <style scoped>
-.task-container {
-  border: 2px solid #ddd;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
+@import "@/assets/css/task-container-style.css";
 </style>
