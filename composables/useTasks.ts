@@ -25,13 +25,36 @@ export function useTasks() {
   const dragDirection = ref<"up" | "down" | "">(""); // ドラッグ方向を保持
 
   // ページネーション計算
-  const totalPages = computed(() =>
-    Math.ceil(tasks.value.length / tasksPerPage.value)
-  );
+  const totalPages = computed(() => {
+    const validTasks = tasks.value.filter(task => task !== null);
+    return Math.max(1, Math.ceil(validTasks.length / tasksPerPage.value));
+  });
+
   const paginatedTasks = computed(() => {
+    // タスクが空の場合は空配列を返す
+    if (!tasks.value || tasks.value.length === 0) {
+      return [];
+    }
+
+    // 有効なタスクのみをフィルタリング
+    const validTasks = tasks.value.filter(task => task !== null);
+
+    // ページネーションの計算
     const start = (currentPage.value - 1) * tasksPerPage.value;
-    const end = currentPage.value * tasksPerPage.value;
-    return tasks.value.slice(start, end);
+    const end = start + tasksPerPage.value;
+
+    // デバッグ用のログ
+    console.log('Pagination:', {
+      start,
+      end,
+      tasksPerPage: tasksPerPage.value,
+      totalTasks: validTasks.length,
+      currentPage: currentPage.value,
+      validTasks
+    });
+
+    // フィルタリングしたタスクをスライス
+    return validTasks.slice(start, end);
   });
 
   // ローカルストレージからタスクを読み込む
@@ -46,17 +69,24 @@ export function useTasks() {
 
   // 新しいタスクを追加
   const addTask = () => {
-    const trimmedTask = newTask.value.trim();
-    if (trimmedTask === "") {
-      return;
-    }
-    if (tasks.value.some((task) => task.text === trimmedTask)) {
-      showToastMessage("タスクが重複しています！", "bg-warning");
-    } else {
+    try {
+      const trimmedTask = newTask.value.trim();
+      if (!trimmedTask) {
+        return;
+      }
+      
+      if (tasks.value.some((task) => task?.text === trimmedTask)) {
+        showToastMessage("タスクが重複しています！", "bg-warning");
+        return;
+      }
+      
       tasks.value.push({ text: trimmedTask, completed: false });
       newTask.value = "";
       saveTasks();
       showToastMessage("タスクが正常に追加されました！", "bg-success");
+    } catch (error) {
+      console.error('タスク追加エラー:', error);
+      showToastMessage("タスクの追加に失敗しました", "bg-danger");
     }
   };
 
@@ -69,19 +99,48 @@ export function useTasks() {
 
   // 選択したタスクを削除
   const removeSelectedTasks = () => {
-    tasks.value = tasks.value.filter(
-      (_, index) => !selectedTasks.value.includes(index)
-    );
+    // 選択されたインデックスをページネーションを考慮して実際のインデックスに変換
+    const actualIndexes = selectedTasks.value.map(selectedIndex => {
+      // 現在のページの開始インデックスを計算
+      const pageOffset = (currentPage.value - 1) * tasksPerPage.value;
+      // 実際のインデックスを計算（ページフセットを加算）
+      return pageOffset + (selectedIndex % tasksPerPage.value);
+    });
+
+    // インデックスを降順にソートして、大きい方から削除
+    const sortedIndexes = [...actualIndexes].sort((a, b) => b - a);
+    
+    // 大きいインデックスから順に削除
+    for (const index of sortedIndexes) {
+      if (index >= 0 && index < tasks.value.length) {
+        tasks.value.splice(index, 1);
+      }
+    }
+
     selectedTasks.value = [];
+    
+    // タスク削除後にページ数を再計算
+    const newTotalPages = Math.ceil(tasks.value.length / tasksPerPage.value);
+    if (currentPage.value > newTotalPages) {
+      currentPage.value = Math.max(1, newTotalPages);
+    }
+    
     saveTasks();
     showToastMessage("タスクが削除されました！", "bg-danger");
   };
 
   // 編集モーダルを開く
   const openEditModal = (index: number) => {
-    currentEditTaskIndex.value = index;
-    currentEditTask.value = tasks.value[index].text;
-    isEditModalVisible.value = true;
+    // 現在のページのオフセットを計算
+    const pageOffset = (currentPage.value - 1) * tasksPerPage.value;
+    // 実際のインデックスを計算（ページオフセットを加算）
+    const actualIndex = pageOffset + (index % tasksPerPage.value);
+    
+    if (actualIndex >= 0 && actualIndex < tasks.value.length) {
+      currentEditTaskIndex.value = actualIndex;
+      currentEditTask.value = tasks.value[actualIndex].text;
+      isEditModalVisible.value = true;
+    }
   };
 
   // 編集モーダルを閉じる
@@ -100,7 +159,7 @@ export function useTasks() {
     }
   };
 
-  // トーストメッセージを表示
+  // トーストメセージを表示
   const showToastMessage = (message: string, type: string) => {
     toastMessage.value = message;
     toastType.value = type;
@@ -129,9 +188,14 @@ export function useTasks() {
     newTask.value = "";
   };
 
-  // ページ数リセット（タスク表示件数変更時）
+  // タスク表示件数変更時のみ選択状態をリセット
   const resetPage = () => {
-    currentPage.value = 1; // 件数変更時は常に1ページ目から表示
+    currentPage.value = 1;
+    selectedTasks.value = [];
+    console.log('Reset page:', {
+      tasksPerPage: tasksPerPage.value,
+      totalTasks: tasks.value.length
+    });
   };
 
   // ドラッグ開始時の処理
@@ -148,7 +212,7 @@ export function useTasks() {
 
     if (draggedTaskIndex.value !== null) {
       dragDirection.value = fullIndex < draggedTaskIndex.value ? "up" : "down";
-      draggingTaskIndex.value = fullIndex; // ページ全体でのインデックス
+      draggingTaskIndex.value = fullIndex; // ページ体でのインデックス
     }
   };
 
@@ -183,6 +247,15 @@ export function useTasks() {
     const fullIndex = index + (currentPage.value - 1) * tasksPerPage.value;
     return (
       dragDirection.value === "down" && draggingTaskIndex.value === fullIndex
+    );
+  };
+
+  // TaskListコンポーネントで使用するgetActualIndex
+  const getActualIndex = (index: number) => {
+    const pageOffset = (currentPage.value - 1) * tasksPerPage.value;
+    const validTasks = tasks.value.filter(task => task !== null);
+    return validTasks.findIndex(task => 
+      task === tasks.value[index + pageOffset]
     );
   };
 
@@ -221,5 +294,6 @@ export function useTasks() {
     onDrop,
     isDraggingUp,
     isDraggingDown,
+    getActualIndex,
   };
 }

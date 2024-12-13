@@ -7,7 +7,7 @@
         </button>
       </li>
       <li
-        v-for="page in totalPages"
+        v-for="page in pages"
         :key="page"
         class="page-item"
         :class="{ active: currentPage === page }"
@@ -26,18 +26,22 @@
 </template>
 
 <script setup lang="ts">
-defineProps({
-  currentPage: {
-    type: Number,
-    required: true,
-  },
-  totalPages: {
-    type: Number,
-    required: true,
-  },
+const props = defineProps<{
+  currentPage: number;
+  totalPages: number;
+}>();
+
+const pages = computed(() => {
+  const pageArray = [];
+  for (let i = 1; i <= props.totalPages; i++) {
+    pageArray.push(i);
+  }
+  return pageArray;
 });
 
-defineEmits(['changePage']);
+defineEmits<{
+  'changePage': [page: number];
+}>();
 </script>
 
 <style scoped>

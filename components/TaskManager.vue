@@ -1,133 +1,67 @@
 <template>
   <div class="row">
     <div class="col-12">
-      <!-- 入力エリア -->
-      <div class="input-container border p-3 mb-3">
-        <div class="input-group">
-          <input
-            v-model="newTask"
-            type="text"
-            class="form-control"
-            placeholder="新しいタスクを入力"
-            @keyup.enter="addTask"
-          />
-          <button class="btn btn-primary ms-3" @click="addTask">
-            タスクを追加
-          </button>
-          <button
-            class="btn btn-secondary ms-3"
-            @click="clearInput"
-            :disabled="!newTask"
-          >
-            入力内容をクリア
-          </button>
-        </div>
-      </div>
+      <TaskInput
+        v-model="newTask"
+        @add-task="addTask"
+        @clear-input="clearInput"
+      />
 
-      <!-- ボタンとタスクリストを一つの枠で囲む -->
       <div class="task-container border p-3">
-        <!-- タスク管理ボタン -->
-        <div class="mb-3 d-flex align-items-center">
-          <button
-            class="btn btn-danger me-3"
-            @click="removeSelectedTasks"
-            :disabled="!selectedTasks.length"
-          >
-            タスクを削除
-          </button>
-          <button
-            class="btn btn-secondary me-3"
-            @click="deselectAllTasks"
-            :disabled="!selectedTasks.length"
-          >
-            選択されたタスクをクリア
-          </button>
+        <TaskControls
+          :selected-tasks-count="selectedTasks.length"
+          v-model:tasks-per-page="tasksPerPage"
+          :task-display-options="taskDisplayOptions"
+          @remove-selected-tasks="removeSelectedTasks"
+          @deselect-all-tasks="deselectAllTasks"
+          @update:tasks-per-page="(value) => { tasksPerPage = value; resetPage(); }"
+        />
 
-          <!-- ここにセレクトボックスを配置 -->
-          <select
-            id="tasksPerPage"
-            class="form-select form-select-sm"
-            v-model="tasksPerPage"
-            @change="resetPage"
-          >
-            <option
-              v-for="option in taskDisplayOptions"
-              :key="option"
-              :value="option"
-            >
-              {{ option }} 件
-            </option>
-          </select>
-        </div>
-
-        <!-- タスクリスト -->
-        <div class="list-group">
-          <div
-            v-for="(task, index) in paginatedTasks"
-            :key="task.text"
-            class="list-group-item d-flex align-items-center justify-content-between position-relative"
-            draggable="true"
-            :class="{
-              dragging:
-                draggedTaskIndex === index + (currentPage - 1) * tasksPerPage,
-              'dragging-up':
-                draggingTaskIndex ===
-                  index + (currentPage - 1) * tasksPerPage &&
-                dragDirection === 'up',
-              'dragging-down':
-                draggingTaskIndex ===
-                  index + (currentPage - 1) * tasksPerPage &&
-                dragDirection === 'down',
-            }"
-            @dragstart="onDragStart(index)"
-            @dragover.prevent="onDragOver(index)"
-            @drop="onDrop(index)"
-          >
-            <div>
-              <input
-                type="checkbox"
-                class="form-check-input me-3"
-                :value="index + (currentPage - 1) * tasksPerPage"
-                v-model="selectedTasks"
-              />
-              <span :class="{ 'text-decoration-line-through': task.completed }">
-                {{ task.text }}
-              </span>
-            </div>
-            <button
-              class="btn btn-secondary btn-sm"
-              @click="openEditModal(index + (currentPage - 1) * tasksPerPage)"
-            >
-              編集
-            </button>
-          </div>
-        </div>
+        <TaskList
+          :tasks="paginatedTasks"
+          :selected-tasks="selectedTasks"
+          :dragged-task-index="draggedTaskIndex"
+          :dragging-task-index="draggingTaskIndex"
+          :drag-direction="dragDirection"
+          :current-page="currentPage"
+          :tasks-per-page="tasksPerPage"
+          @drag-start="onDragStart"
+          @drag-over="onDragOver"
+          @drop="onDrop"
+          @edit-task="openEditModal"
+          @update:selected-tasks="selectedTasks = $event"
+        />
       </div>
 
-      <!-- ページネーション -->
-  <Pagination
-    :currentPage="currentPage"
-    :totalPages="totalPages"
-    @changePage="changePage"
-  />
+      <Pagination
+        :current-page="currentPage"
+        :total-pages="totalPages"
+        @change-page="changePage"
+      />
     </div>
   </div>
 
- <!-- 編集モーダル --> 
- <EditModal :isEditModalVisible="isEditModalVisible" :currentEditTask="currentEditTask" @closeEditModal="closeEditModal" @saveEditTask="saveEditTask" @update:currentEditTask="currentEditTask = $event" />
+  <EditModal
+    :is-edit-modal-visible="isEditModalVisible"
+    :current-edit-task="currentEditTask"
+    @close-edit-modal="closeEditModal"
+    @save-edit-task="saveEditTask"
+    @update:current-edit-task="currentEditTask = $event"
+  />
 
-  <!-- トースト通知 -->
   <ToastNotification
-  :showToast="showToast"
-  :toastType="toastType"
-  :toastMessage="toastMessage"
-  @close="showToast = false"
-/>
-
+    :show-toast="showToast"
+    :toast-type="toastType"
+    :toast-message="toastMessage"
+    @close="showToast = false"
+  />
 </template>
 
 <script setup lang="ts">
 import { useTasks } from "../composables/useTasks";
+import TaskInput from './TaskInput.vue';
+import TaskControls from './TaskControls.vue';
+import TaskList from './TaskList.vue';
 import ToastNotification from './ToastNotification.vue';
 import Pagination from './Pagination.vue';
 import EditModal from './EditModal.vue';
@@ -164,55 +98,13 @@ const {
   onDragStart,
   onDragOver,
   onDrop,
-  isDraggingUp,
-  isDraggingDown,
 } = useTasks();
 </script>
 
 <style scoped>
-.container {
-  max-width: 600px;
-  margin: auto;
-}
-
 .task-container {
   border: 2px solid #ddd;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.input-container {
-  border: 2px solid #ddd;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-.dragging {
-  background-color: rgba(0, 123, 255, 0.2); /* 青い枠 */
-  border: 2px solid #007bff; /* 青い枠の強調 */
-  box-shadow: 0 0 10px rgba(0, 123, 255, 0.5); /* 青い枠の影 */
-}
-
-.dragging-up::before,
-.dragging-down::after {
-  content: "";
-  display: block;
-  position: absolute;
-  height: 3px;
-  background-color: red; /* 赤い線 */
-  left: 0;
-  right: 0;
-  z-index: 1;
-}
-
-.dragging-up::before {
-  top: 0; /* 上に赤い線 */
-}
-
-.dragging-down::after {
-  bottom: 0; /* 下に赤い線 */
-}
-
-.form-select {
-  width: 100px;
 }
 </style>
