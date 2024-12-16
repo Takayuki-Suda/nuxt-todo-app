@@ -12,14 +12,16 @@ export function useTaskEdit(
 
     if (actualIndex >= 0 && actualIndex < state.value.tasks.length) {
       state.value.currentEditTaskIndex = actualIndex;
-      state.value.currentEditTask = { ...state.value.tasks[actualIndex] }; // タスクオブジェクトをコピー
+      // 必要に応じてタスクをコピーして編集できるようにする
+      state.value.currentEditTask = { ...state.value.tasks[actualIndex] };
       state.value.isEditModalVisible = true;
     }
   };
 
   const closeEditModal = () => {
     state.value.isEditModalVisible = false;
-    state.value.currentEditTaskIndex = null;
+    state.value.currentEditTask = null; // 編集タスクをリセット
+    state.value.currentEditTaskIndex = null; // 編集タスクのインデックスをリセット
   };
 
   const saveEditTask = () => {
@@ -28,10 +30,14 @@ export function useTaskEdit(
       state.value.currentEditTask
     ) {
       const task = state.value.currentEditTask;
-      state.value.tasks[state.value.currentEditTaskIndex] = { ...task }; // タスクオブジェクトを更新
-      saveTasks();
-      showToastMessage("タスクが更新されました！", "bg-info");
-      closeEditModal();
+      if (task) {
+        state.value.tasks[state.value.currentEditTaskIndex] = { ...task };
+        saveTasks();
+        showToastMessage("タスクが更新されました！", "bg-info");
+        closeEditModal();
+      }
+    } else {
+      showToastMessage("タスクの更新に失敗しました", "bg-danger");
     }
   };
 

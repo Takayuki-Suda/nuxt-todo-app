@@ -39,6 +39,7 @@
   </div>
 
   <EditModal
+    v-if="taskState.state.currentEditTask"
     :is-edit-modal-visible="taskState.state.isEditModalVisible"
     :current-edit-task="taskState.state.currentEditTask"
     @close-edit-modal="operations.closeEditModal"
@@ -56,6 +57,7 @@
   />
   <!-- 詳細情報を表示するモーダル -->
   <TaskDetailsModal
+    v-if="taskState.selectedTask"
     :task="taskState.selectedTask"
     @close="taskState.selectedTask = null"
   />
@@ -70,6 +72,13 @@ import ToastNotification from "./ToastNotification.vue";
 import Pagination from "./Pagination.vue";
 import EditModal from "./EditModal.vue";
 import TaskDetailsModal from "./TaskDetailsModal.vue";
+
+defineProps({
+  task: {
+    type: Object,
+    default: () => null, // nullが渡されてもエラーにならないように
+  },
+});
 
 const { taskState, operations } = useTasks();
 

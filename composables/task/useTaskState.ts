@@ -1,5 +1,5 @@
-import { ref } from 'vue';
-import type { TaskState } from '~/types/task';
+import { ref } from "vue";
+import type { TaskState } from "~/types/task";
 
 export function useTaskState() {
   // 初期状態を定義
@@ -9,9 +9,9 @@ export function useTaskState() {
     selectedTasks: [],
     isEditModalVisible: false,
     currentEditTaskIndex: null,
-    currentEditTask: "",
+    currentEditTask: null,
     currentPage: 1,
-    tasksPerPage: 5
+    tasksPerPage: 5,
   };
 
   const state = ref<TaskState>(initialState);
@@ -21,4 +21,4 @@ export function useTaskState() {
     state,
     taskDisplayOptions,
   };
-} 
+}
