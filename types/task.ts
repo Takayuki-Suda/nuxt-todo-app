@@ -11,4 +11,6 @@ export interface TaskState {
   isEditModalVisible: boolean;
   currentPage: number;
   tasksPerPage: number;
+  newTask: string;
+  selectedTasks: number[];
 }
