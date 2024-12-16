@@ -18,18 +18,24 @@
         </div>
         <div class="modal-body">
           <input
-            :value="currentEditTask"
-            @input="$emit('update:currentEditTask', $event.target.value)"
+            v-model="currentEditTask.text"
             type="text"
             class="form-control"
             placeholder="タスクを編集してください"
+          />
+          <input
+            v-model="currentEditTask.dueDate"
+            type="date"
+            class="form-control mt-2"
           />
         </div>
         <div class="modal-footer">
           <button class="btn btn-secondary" @click="$emit('closeEditModal')">
             キャンセル
           </button>
-          <button class="btn btn-primary" @click="$emit('saveEditTask')">保存</button>
+          <button class="btn btn-primary" @click="$emit('saveEditTask')">
+            保存
+          </button>
         </div>
       </div>
     </div>
@@ -37,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref } from "vue";
 
 const props = defineProps({
   isEditModalVisible: {
@@ -45,10 +51,15 @@ const props = defineProps({
     required: true,
   },
   currentEditTask: {
-    type: String,
+    type: Object,
     required: true,
   },
 });
 
-const emit = defineEmits(['closeEditModal', 'saveEditTask', 'update:currentEditTask']);
+const emit = defineEmits([
+  "closeEditModal",
+  "saveEditTask",
+  "update:currentEditTaskText",
+  "update:currentEditTaskDate",
+]);
 </script>

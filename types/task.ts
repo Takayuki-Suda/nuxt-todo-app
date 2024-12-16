@@ -1,15 +1,14 @@
 export interface Task {
   text: string;
   completed: boolean;
+  dueDate: string;
 }
 
 export interface TaskState {
   tasks: Task[];
-  newTask: string;
-  selectedTasks: number[];
-  isEditModalVisible: boolean;
+  currentEditTask: Task | null;
   currentEditTaskIndex: number | null;
-  currentEditTask: string;
+  isEditModalVisible: boolean;
   currentPage: number;
   tasksPerPage: number;
-} 
+}
