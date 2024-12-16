@@ -17,17 +17,26 @@
           ></button>
         </div>
         <div class="modal-body">
+          <!-- タスク名 -->
           <input
             v-model="currentEditTask.text"
             type="text"
             class="form-control"
             placeholder="タスクを編集してください"
           />
+          <!-- 締め切り日 -->
           <input
             v-model="currentEditTask.dueDate"
             type="date"
             class="form-control mt-2"
           />
+          <!-- 詳細情報 -->
+          <textarea
+            v-model="currentEditTask.details"
+            class="form-control mt-2"
+            placeholder="タスクの詳細を入力してください"
+            rows="4"
+          ></textarea>
         </div>
         <div class="modal-footer">
           <button class="btn btn-secondary" @click="$emit('closeEditModal')">
@@ -61,5 +70,6 @@ const emit = defineEmits([
   "saveEditTask",
   "update:currentEditTaskText",
   "update:currentEditTaskDate",
+  "update:currentEditTaskDetails", // 新しく追加されたイベント
 ]);
 </script>

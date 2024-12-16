@@ -25,6 +25,11 @@
           </span>
         </div>
 
+        <!-- 詳細ボタン -->
+        <button class="btn btn-info btn-sm ms-3" @click="showDetails(index)">
+          詳細
+        </button>
+
         <!-- 編集ボタン -->
         <button
           class="btn btn-secondary btn-sm ms-3"
@@ -45,8 +50,8 @@
 </template>
 
 <script setup lang="ts">
-import { useTaskDragDrop } from "~/composables/task/useTaskDragDrop";
 import { ref } from "vue";
+import { useTaskDragDrop } from "~/composables/task/useTaskDragDrop";
 import type { TaskState, Task } from "~/types/task";
 
 // props の定義
@@ -57,6 +62,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   editTask: [index: number];
+  showDetails: [index: number]; // showDetails イベントを追加
 }>();
 
 // ページネーションを考慮したタスクインデックスを計算
@@ -101,6 +107,11 @@ const updateSelectedTasks = (index: number) => {
   }
 
   props.state.selectedTasks = newSelectedTasks;
+};
+
+// 詳細ボタンが押されたときにイベントを発火
+const showDetails = (index: number) => {
+  emit("showDetails", index);
 };
 
 // ドラッグ終了時に状態をリセット

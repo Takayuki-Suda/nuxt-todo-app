@@ -22,6 +22,7 @@
           :dragged-task-index="taskState.draggedTaskIndex"
           :dragging-task-index="taskState.draggingTaskIndex"
           :drag-direction="taskState.dragDirection"
+          @showDetails="openDetails"
           @drag-start="operations.onDragStart"
           @drag-over="operations.onDragOver"
           @drop="operations.onDrop"
@@ -53,6 +54,11 @@
     :toast-message="taskState.toastMessage"
     @close="taskState.showToast = false"
   />
+  <!-- 詳細情報を表示するモーダル -->
+  <TaskDetailsModal
+    :task="taskState.selectedTask"
+    @close="taskState.selectedTask = null"
+  />
 </template>
 
 <script setup lang="ts">
@@ -63,8 +69,15 @@ import TaskList from "./TaskList.vue";
 import ToastNotification from "./ToastNotification.vue";
 import Pagination from "./Pagination.vue";
 import EditModal from "./EditModal.vue";
+import TaskDetailsModal from "./TaskDetailsModal.vue";
 
 const { taskState, operations } = useTasks();
+
+// 詳細ボタンが押された時の処理
+const openDetails = (index: number) => {
+  const task = taskState.state.tasks[index]; // 選択されたタスク
+  taskState.selectedTask = task; // 選択タスクを保存
+};
 </script>
 
 <style scoped>
