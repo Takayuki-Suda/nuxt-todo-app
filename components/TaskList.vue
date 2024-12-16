@@ -9,6 +9,7 @@
       @dragstart="onDragStart(index)"
       @dragover.prevent="onDragOver(index)"
       @drop="onDrop(index)"
+      @dragend="onDragEnd"
     >
       <div>
         <input
@@ -88,6 +89,13 @@ const updateSelectedTasks = (index: number) => {
   }
 
   props.state.selectedTasks = newSelectedTasks;
+};
+
+// ドラッグ終了時に状態をリセット
+const onDragEnd = () => {
+  draggedTaskIndex.value = null;
+  draggingTaskIndex.value = null;
+  dragDirection.value = "";
 };
 </script>
 
