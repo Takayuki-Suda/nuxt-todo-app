@@ -12,7 +12,7 @@
       @dragend="onDragEnd"
     >
       <div class="d-flex w-100 align-items-center">
-        <!-- タスクチェックボックス -->
+        <!-- タスク選択チェックボックス -->
         <input
           type="checkbox"
           class="form-check-input me-3"
@@ -23,6 +23,24 @@
           <span :class="{ 'text-decoration-line-through': task.completed }">
             {{ task.text }}
           </span>
+        </div>
+
+        <!-- 完了・未完了 ラジオボタン -->
+        <div class="d-flex me-3">
+          <input
+            type="radio"
+            class="form-check-input me-1"
+            :checked="task.completed"
+            @change="toggleTaskCompletion(index, true)"
+          />
+          <label>完了</label>
+          <input
+            type="radio"
+            class="form-check-input me-1 ms-3"
+            :checked="!task.completed"
+            @change="toggleTaskCompletion(index, false)"
+          />
+          <label>未完了</label>
         </div>
 
         <!-- 詳細ボタン -->
@@ -40,8 +58,8 @@
 
         <!-- 緊急度表示 -->
         <div class="priority-container ms-3">
-          <span :class="['badge', getPriorityClass(task.dueDate)]">
-            {{ getPriorityLabel(task.dueDate) }}
+          <span :class="['badge', getPriorityClass(task)]">
+            {{ getPriorityLabel(task) }}
           </span>
         </div>
       </div>
@@ -121,9 +139,15 @@ const onDragEnd = () => {
   dragDirection.value = "";
 };
 
+// 完了・未完了ラジオボタンをクリックしたときにタスクを完了/未完了に切り替える
+const toggleTaskCompletion = (index: number, isCompleted: boolean) => {
+  const task = props.paginatedTasks[index];
+  task.completed = isCompleted; // 完了状態を切り替える
+};
+
 // 緊急度に基づくクラスを返す関数
-const getPriorityClass = (dueDate: string) => {
-  const priority = getPriorityLabel(dueDate);
+const getPriorityClass = (task: Task) => {
+  const priority = getPriorityLabel(task);
   switch (priority) {
     case "終了":
       return "bg-dark";
@@ -133,20 +157,26 @@ const getPriorityClass = (dueDate: string) => {
       return "bg-warning";
     case "低":
       return "bg-success";
+    case "遅延":
+      return "bg-danger";
     default:
       return "";
   }
 };
 
 // 緊急度のラベルを計算する関数
-const getPriorityLabel = (dueDate: string) => {
+const getPriorityLabel = (task: Task) => {
   const currentDate = new Date();
-  const taskDueDate = new Date(dueDate);
+  const taskDueDate = new Date(task.dueDate);
   const timeDiff = taskDueDate.getTime() - currentDate.getTime();
   const dayDiff = timeDiff / (1000 * 3600 * 24); // ミリ秒を日数に変換
 
+  if (task.completed) {
+    return "終了"; // 完了したタスク
+  }
+
   if (dayDiff < 0) {
-    return "終了"; // 締め切りが過ぎている
+    return "遅延"; // 締め切りが過ぎている未完了のタスク
   } else if (dayDiff <= 5) {
     return "高"; // 5日以内
   } else if (dayDiff <= 14) {
