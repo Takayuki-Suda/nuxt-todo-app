@@ -158,7 +158,7 @@ const getPriorityClass = (task: Task) => {
     case "低":
       return "bg-success";
     case "遅延":
-      return "bg-danger";
+      return "bg-delay";
     default:
       return "";
   }
@@ -223,5 +223,40 @@ const getPriorityLabel = (task: Task) => {
 
 .bg-success {
   background-color: green;
+}
+
+/* 遅延のエフェクト */
+@keyframes flameEffect {
+  0%,
+  100% {
+    box-shadow: 0 0 10px 2px rgba(255, 69, 0, 0.8),
+      0 0 20px 4px rgba(255, 140, 0, 0.6);
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    box-shadow: 0 0 15px 4px rgba(255, 0, 0, 0.9),
+      0 0 30px 6px rgba(255, 69, 0, 0.7);
+    transform: translateY(-3px) scale(1.05);
+  }
+}
+
+/* 遅延クラス */
+.bg-delay {
+  background-color: red !important;
+  color: white;
+  animation: flameEffect 1.5s infinite ease-in-out;
+  position: relative;
+  text-transform: uppercase;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+/* 遅延の装飾 */
+.bg-delay::after {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  font-size: 1.5rem;
+  animation: flameEffect 1.5s infinite ease-in-out;
 }
 </style>
