@@ -3,9 +3,8 @@
     v-if="task"
     class="modal fade show"
     tabindex="-1"
-    aria-labelledby="taskDetailsModal"
-    aria-hidden="true"
-    style="display: block"
+    style="display: block; background: rgba(0, 0, 0, 0.5)"
+    role="dialog"
   >
     <div class="modal-dialog">
       <div class="modal-content">
