@@ -5,42 +5,29 @@
       :key="task.text"
       class="list-group-item d-flex align-items-center justify-content-between position-relative"
       draggable="true"
-      :class="getDraggingClasses(index)"
+      :class="[
+        getDraggingClasses(index),
+        { 'selected-task': isSelected(index) },
+      ]"
+      @click="handleTaskClick(index)"
       @dragstart="onDragStart(index)"
       @dragover.prevent="onDragOver(index)"
       @drop="onDrop(index)"
       @dragend="onDragEnd"
     >
       <div class="d-flex w-100 align-items-center">
-        <!-- タスク選択チェックボックス -->
+        <!-- タスク名左側に完了チェックボックス -->
         <input
           type="checkbox"
           class="form-check-input me-3"
-          :checked="state.selectedTasks.includes(getFullIndex(index))"
-          @change="updateSelectedTasks(index)"
+          :checked="task.completed"
+          @change="toggleTaskCompletion(index, $event.target.checked)"
         />
+
         <div class="task-text-container">
           <span :class="{ 'text-decoration-line-through': task.completed }">
             {{ task.text }}
           </span>
-        </div>
-
-        <!-- 完了・未完了 ラジオボタン -->
-        <div class="d-flex me-3">
-          <input
-            type="radio"
-            class="form-check-input me-1"
-            :checked="task.completed"
-            @change="toggleTaskCompletion(index, true)"
-          />
-          <label>完了</label>
-          <input
-            type="radio"
-            class="form-check-input me-1 ms-3"
-            :checked="!task.completed"
-            @change="toggleTaskCompletion(index, false)"
-          />
-          <label>未完了</label>
         </div>
 
         <!-- 詳細ボタン -->
@@ -127,6 +114,20 @@ const updateSelectedTasks = (index: number) => {
   props.state.selectedTasks = newSelectedTasks;
 };
 
+// タスクが選択されているかどうかを判定する関数
+const isSelected = (index: number) => {
+  const actualIndex = getFullIndex(index);
+  return props.state.selectedTasks.includes(actualIndex);
+};
+
+// タスクをクリックしたときに選択を切り替える
+const handleTaskClick = (index: number) => {
+  // チェックボックスがクリックされていない場合のみ選択状態を切り替える
+  if (event.target.type !== "checkbox") {
+    updateSelectedTasks(index);
+  }
+};
+
 // 詳細ボタンが押されたときにイベントを発火
 const showDetails = (index: number) => {
   emit("showDetails", index);
@@ -139,7 +140,7 @@ const onDragEnd = () => {
   dragDirection.value = "";
 };
 
-// 完了・未完了ラジオボタンをクリックしたときにタスクを完了/未完了に切り替える
+// 完了・未完了チェックボックスをクリックしたときにタスクを完了/未完了に切り替える
 const toggleTaskCompletion = (index: number, isCompleted: boolean) => {
   const task = props.paginatedTasks[index];
   task.completed = isCompleted; // 完了状態を切り替える
@@ -192,7 +193,11 @@ const getPriorityLabel = (task: Task) => {
 <style scoped>
 @import "@/assets/css/dragging-style.css";
 
-/* 緊急度表示に適用するスタイル */
+/* 選択されたタスクに色を付ける */
+.selected-task {
+  background-color: #d1e7dd; /* 選択されたタスクの背景色 */
+}
+
 .priority-container {
   display: flex;
   flex-direction: column;
