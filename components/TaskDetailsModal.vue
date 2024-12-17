@@ -20,7 +20,7 @@
         <div class="modal-body">
           <p><strong>タスク:</strong> {{ task.text }}</p>
           <p><strong>期限:</strong> {{ task.dueDate }}</p>
-          <p><strong>完了:</strong> {{ task.completed ? "はい" : "いいえ" }}</p>
+          <p><strong>完了:</strong> {{ task.completed ? "完了" : "未完了" }}</p>
           <p><strong>詳細:</strong> {{ task.details }}</p>
         </div>
       </div>
