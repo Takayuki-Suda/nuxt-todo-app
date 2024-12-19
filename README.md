@@ -21,3 +21,6 @@ flowchart 作成方法
 3.jdk をインストール
 4.plantuml-x.xxxx.x.jar をインストールし任意のディレクトリに保存
 5.java -jar D:/tools/plantuml/plantuml-x.xxxx.x.jar task_flow.puml
+
+ブランチを作成したらリモートリポジトリにプッシュする
+git push -u origin <ブランチ名>
