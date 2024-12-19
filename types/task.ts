@@ -1,4 +1,5 @@
 export interface Task {
+  id?: number; // タスクの一意識別子（ID）
   text: string;
   completed: boolean;
   dueDate: string;

@@ -1,5 +1,6 @@
 import type { Ref } from "vue";
 import type { TaskState } from "~/types/task";
+import axios from "axios"; // axiosをインポートしてAPI呼び出しに使用
 
 export function useTaskEdit(
   state: Ref<TaskState>,
@@ -24,17 +25,35 @@ export function useTaskEdit(
     state.value.currentEditTaskIndex = null; // 編集タスクのインデックスをリセット
   };
 
-  const saveEditTask = () => {
+  const saveEditTask = async () => {
     if (
       state.value.currentEditTaskIndex !== null &&
       state.value.currentEditTask
     ) {
       const task = state.value.currentEditTask;
-      if (task) {
-        state.value.tasks[state.value.currentEditTaskIndex] = { ...task };
-        saveTasks();
-        showToastMessage("タスクが更新されました！", "bg-info");
-        closeEditModal();
+      try {
+        // サーバーにタスクを更新するAPIリクエストを送信
+        const response = await axios.put(
+          `http://localhost:5000/api/tasks/${task.id}`, // タスクIDを使ってAPIを更新
+          {
+            text: task.text,
+            completed: task.completed,
+            dueDate: task.dueDate, // 編集されたdueDateを送信
+          }
+        );
+
+        if (response.status === 200) {
+          // サーバーから正常に応答があれば、ローカルタスクも更新
+          state.value.tasks[state.value.currentEditTaskIndex] = { ...task };
+          saveTasks(); // ローカル状態の保存処理
+          showToastMessage("タスクが更新されました！", "bg-info");
+          closeEditModal();
+        } else {
+          showToastMessage("タスクの更新に失敗しました", "bg-danger");
+        }
+      } catch (error) {
+        console.error("タスク更新エラー:", error);
+        showToastMessage("タスクの更新に失敗しました", "bg-danger");
       }
     } else {
       showToastMessage("タスクの更新に失敗しました", "bg-danger");

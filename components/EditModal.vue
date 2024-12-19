@@ -26,7 +26,7 @@
           />
           <!-- 締め切り日 -->
           <input
-            v-model="currentEditTask.dueDate"
+            v-model="formattedDueDate"
             type="date"
             class="form-control mt-2"
           />
@@ -42,9 +42,7 @@
           <button class="btn btn-secondary" @click="$emit('closeEditModal')">
             キャンセル
           </button>
-          <button class="btn btn-primary" @click="$emit('saveEditTask')">
-            保存
-          </button>
+          <button class="btn btn-primary" @click="saveEditTask">保存</button>
         </div>
       </div>
     </div>
@@ -52,7 +50,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watch } from "vue";
 
 const props = defineProps({
   isEditModalVisible: {
@@ -65,11 +63,26 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits([
-  "closeEditModal",
-  "saveEditTask",
-  "update:currentEditTaskText",
-  "update:currentEditTaskDate",
-  "update:currentEditTaskDetails", // 新しく追加されたイベント
-]);
+const emit = defineEmits(["closeEditModal", "saveEditTask"]);
+
+// formattedDueDateは実際のdueDateをYYYY-MM-DD形式で保持する
+const formattedDueDate = ref("");
+
+watch(
+  () => props.currentEditTask.dueDate,
+  (newDueDate) => {
+    // dueDateがISO 8601形式の場合、YYYY-MM-DD形式に変換
+    if (newDueDate) {
+      const date = new Date(newDueDate);
+      formattedDueDate.value = date.toISOString().split("T")[0]; // YYYY-MM-DD形式
+    }
+  },
+  { immediate: true }
+);
+
+const saveEditTask = () => {
+  // formattedDueDateをcurrentEditTask.dueDateに反映
+  props.currentEditTask.dueDate = formattedDueDate.value;
+  emit("saveEditTask");
+};
 </script>

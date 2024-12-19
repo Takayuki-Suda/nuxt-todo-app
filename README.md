@@ -24,3 +24,6 @@ flowchart 作成方法
 
 ブランチを作成したらリモートリポジトリにプッシュする
 git push -u origin <ブランチ名>
+
+サーバーを起動
+python app.py
