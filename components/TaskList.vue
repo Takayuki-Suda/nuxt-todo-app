@@ -122,10 +122,18 @@ const isSelected = (index: number) => {
 
 // タスクをクリックしたときに選択を切り替える
 const handleTaskClick = (index: number) => {
-  // チェックボックスがクリックされていない場合のみ選択状態を切り替える
-  if (event.target.type !== "checkbox") {
-    updateSelectedTasks(index);
+  const target = event.target as HTMLElement;
+
+  // チェックボックス、編集ボタン、詳細ボタンがクリックされた場合は選択状態を切り替えない
+  if (
+    target.type === "checkbox" ||
+    target.classList.contains("btn-info") ||
+    target.classList.contains("btn-secondary")
+  ) {
+    return;
   }
+
+  updateSelectedTasks(index);
 };
 
 // 詳細ボタンが押されたときにイベントを発火
