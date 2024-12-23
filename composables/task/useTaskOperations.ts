@@ -1,7 +1,8 @@
 import { watch } from "vue";
 import type { Ref } from "vue";
 import type { TaskState, Task } from "~/types/task";
-import axios from "axios"; // axiosをインポートしてAPI呼び出しに使用
+import axios from "axios";
+import { AxiosError } from "axios";
 
 export function useTaskOperations(
   state: Ref<TaskState>,
@@ -23,12 +24,15 @@ export function useTaskOperations(
         dueDate: new Date().toISOString(),
       };
 
-      const response = await axios.post("http://localhost:5000/api/tasks", newTask);
+      const response = await axios.post(
+        "http://localhost:5000/api/tasks",
+        newTask
+      );
       if (response.status === 201) {
-        state.value.tasks.push(newTask);
+        // レスポンスから保存されたタスクを取得して状態を更新
+        state.value.tasks.push(response.data);
         state.value.newTask = "";
         showToastMessage("タスクが正常に追加されました！", "bg-success");
-        await loadTasks(); // タスクを再読み込み
       }
     } catch (error) {
       console.error("タスク追加エラー:", error);
@@ -49,12 +53,15 @@ export function useTaskOperations(
       if (index >= 0 && index < state.value.tasks.length) {
         const taskToRemove = state.value.tasks[index];
 
-        // サーバーに削除するタスクを指定してAPIリクエストを送信
-        const response = await axios.delete(
-          `http://localhost:5000/api/tasks/${taskToRemove.id}`
-        );
-        if (response.status === 200) {
-          state.value.tasks.splice(index, 1); // タスクをローカル状態から削除
+        try {
+          const response = await axios.delete(
+            `http://localhost:5000/api/tasks/${taskToRemove.id}`
+          );
+          if (response.status === 200) {
+            state.value.tasks.splice(index, 1);
+          }
+        } catch (error) {
+          console.error(`タスク削除エラー (ID: ${taskToRemove.id}):`, error);
         }
       }
     }
@@ -65,26 +72,43 @@ export function useTaskOperations(
 
   const saveTasks = async () => {
     try {
-      // 各タスクのdueDateを文字列形式でサーバーに送信
-      const tasksWithDates = state.value.tasks.map((task) => ({
-        ...task,
-        dueDate: task.dueDate, // 必要に応じて日付の変換処理を追加
-      }));
-
-      // サーバーにタスクを保存するAPIリクエストを送信
-      const response = await axios.put(
+      // サーバーにタスクを送信
+      const response = await axios.post(
         "http://localhost:5000/api/tasks",
-        tasksWithDates // 日付情報を含むタスクを送信
+        state.value.tasks
       );
-      if (response.status === 200) {
-        console.log("タスクがデータベースに保存されました");
+
+      // サーバーからのレスポンスが正常な場合
+      if (response.status === 201) {
+        console.log("サーバーレスポンス:", response);
+
+        const addedTask = response.data.task; // 追加されたタスク
+        console.log("追加されたタスク:", addedTask);
+
+        // 状態を更新して、タスクを追加
+        state.value.tasks.push(addedTask);
+
+        console.log("タスクが正常に追加されました。");
+
+        // 状態が更新されたことを通知（必要に応じてUI側に反映）
+        // 例えば、リスト更新のために再レンダリングする必要があるかもしれません
+      } else {
+        console.error("サーバーエラー:", response.data);
       }
     } catch (error) {
       console.error("タスク保存エラー:", error);
     }
   };
 
-  watch(() => state.value.tasks, saveTasks, { deep: true });
+  watch(
+    () => state.value.tasks,
+    () => {
+      console.log("タスクが変更されました。必要に応じて保存してください。");
+      // 自動保存をコメントアウトまたは頻度を制御
+      // saveTasks();
+    },
+    { deep: true }
+  );
 
   const clearInput = () => {
     state.value.newTask = "";
@@ -99,7 +123,7 @@ export function useTaskOperations(
       const response = await axios.get("http://localhost:5000/api/tasks");
       state.value.tasks = response.data;
     } catch (error) {
-      console.error("Failed to fetch tasks:", error);
+      console.error("タスク取得エラー:", error);
       state.value.tasks = [];
     }
   };
