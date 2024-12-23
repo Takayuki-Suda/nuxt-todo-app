@@ -29,6 +29,7 @@
             v-model="formattedDueDate"
             type="date"
             class="form-control mt-2"
+            @input="onDueDateChange"
           />
           <!-- 詳細情報 -->
           <textarea
@@ -52,6 +53,7 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 
+// propsの受け取り
 const props = defineProps({
   isEditModalVisible: {
     type: Boolean,
@@ -65,13 +67,14 @@ const props = defineProps({
 
 const emit = defineEmits(["closeEditModal", "saveEditTask"]);
 
-// formattedDueDateは実際のdueDateをYYYY-MM-DD形式で保持する
+// formattedDueDateをlocal stateで管理
 const formattedDueDate = ref("");
 
+// currentEditTask.dueDateが変更されたときにformattedDueDateを更新
 watch(
   () => props.currentEditTask.dueDate,
   (newDueDate) => {
-    // dueDateがISO 8601形式の場合、YYYY-MM-DD形式に変換
+    // dueDateがISO形式の場合、YYYY-MM-DD形式に変換して表示
     if (newDueDate) {
       const date = new Date(newDueDate);
       formattedDueDate.value = date.toISOString().split("T")[0]; // YYYY-MM-DD形式
@@ -80,9 +83,15 @@ watch(
   { immediate: true }
 );
 
+// formattedDueDateが変更された場合、currentEditTask.dueDateを更新
+const onDueDateChange = () => {
+  // 日付が変更されたとき、currentEditTask.dueDateに反映させる
+  const date = new Date(formattedDueDate.value);
+  props.currentEditTask.dueDate = date.toISOString(); // ISO 8601形式で保存
+};
+
+// 保存ボタンがクリックされた時に親コンポーネントに変更を通知
 const saveEditTask = () => {
-  // formattedDueDateをcurrentEditTask.dueDateに反映
-  props.currentEditTask.dueDate = formattedDueDate.value;
-  emit("saveEditTask");
+  emit("saveEditTask"); // 親コンポーネントに保存イベントを通知
 };
 </script>

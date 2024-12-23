@@ -17,22 +17,18 @@ export function useTaskOperations(
         return;
       }
 
-      // TaskオブジェクトにdueDateを追加
       const newTask: Task = {
         text: trimmedTask,
         completed: false,
-        dueDate: new Date().toISOString(), // ここで現在の日付をdueDateに設定
+        dueDate: new Date().toISOString(),
       };
 
-      // サーバーにタスクを追加するAPIリクエストを送信
-      const response = await axios.post(
-        "http://localhost:5000/api/tasks",
-        newTask
-      );
+      const response = await axios.post("http://localhost:5000/api/tasks", newTask);
       if (response.status === 201) {
-        state.value.tasks.push(newTask); // 新しいタスクをローカル状態に追加
-        state.value.newTask = ""; // newTaskのクリア
+        state.value.tasks.push(newTask);
+        state.value.newTask = "";
         showToastMessage("タスクが正常に追加されました！", "bg-success");
+        await loadTasks(); // タスクを再読み込み
       }
     } catch (error) {
       console.error("タスク追加エラー:", error);
@@ -98,11 +94,22 @@ export function useTaskOperations(
     state.value.selectedTasks = [];
   };
 
+  const loadTasks = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/api/tasks");
+      state.value.tasks = response.data;
+    } catch (error) {
+      console.error("Failed to fetch tasks:", error);
+      state.value.tasks = [];
+    }
+  };
+
   return {
     addTask,
     removeSelectedTasks,
     saveTasks,
     clearInput,
     deselectAllTasks,
+    loadTasks,
   };
 }

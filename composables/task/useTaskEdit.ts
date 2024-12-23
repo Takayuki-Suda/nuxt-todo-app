@@ -1,6 +1,6 @@
 import type { Ref } from "vue";
 import type { TaskState } from "~/types/task";
-import axios from "axios"; // axiosをインポートしてAPI呼び出しに使用
+import axios, { AxiosError } from "axios"; // AxiosErrorをインポートして型を指定
 
 export function useTaskEdit(
   state: Ref<TaskState>,
@@ -13,7 +13,6 @@ export function useTaskEdit(
 
     if (actualIndex >= 0 && actualIndex < state.value.tasks.length) {
       state.value.currentEditTaskIndex = actualIndex;
-      // 必要に応じてタスクをコピーして編集できるようにする
       state.value.currentEditTask = { ...state.value.tasks[actualIndex] };
       state.value.isEditModalVisible = true;
     }
@@ -21,8 +20,8 @@ export function useTaskEdit(
 
   const closeEditModal = () => {
     state.value.isEditModalVisible = false;
-    state.value.currentEditTask = null; // 編集タスクをリセット
-    state.value.currentEditTaskIndex = null; // 編集タスクのインデックスをリセット
+    state.value.currentEditTask = null;
+    state.value.currentEditTaskIndex = null;
   };
 
   const saveEditTask = async () => {
@@ -31,36 +30,59 @@ export function useTaskEdit(
       state.value.currentEditTask
     ) {
       const task = state.value.currentEditTask;
+
+      if (!task.id) {
+        showToastMessage("タスクIDが存在しません", "bg-danger");
+        return;
+      }
+
       try {
-        // サーバーにタスクを更新するAPIリクエストを送信
         const response = await axios.put(
-          `http://localhost:5000/api/tasks/${task.id}`, // タスクIDを使ってAPIを更新
+          `http://localhost:5000/api/tasks/${task.id}`,
           {
             text: task.text,
             completed: task.completed,
-            dueDate: task.dueDate, // 編集されたdueDateを送信
+            dueDate: task.dueDate,
           }
         );
 
         if (response.status === 200) {
-          // サーバーから正常に応答があれば、ローカルタスクも更新
           state.value.tasks[state.value.currentEditTaskIndex] = { ...task };
-          saveTasks(); // ローカル状態の保存処理
+          saveTasks();
           showToastMessage("タスクが更新されました！", "bg-info");
           closeEditModal();
         } else {
           showToastMessage("タスクの更新に失敗しました", "bg-danger");
         }
-      } catch (error) {
-        console.error("タスク更新エラー:", error);
-        showToastMessage("タスクの更新に失敗しました", "bg-danger");
+      } catch (error: unknown) {
+        // 型ガードを使用して、エラーがAxiosErrorかを確認
+        if (axios.isAxiosError(error)) {
+          // AxiosErrorの場合
+          console.error("タスク更新エラー:", error);
+          if (error.response) {
+            showToastMessage(
+              `エラー: ${error.response.data.message || "更新に失敗しました"}`,
+              "bg-danger"
+            );
+          } else if (error.request) {
+            showToastMessage(
+              "ネットワークエラー: サーバーからの応答がありません",
+              "bg-danger"
+            );
+          } else {
+            showToastMessage("タスクの更新に失敗しました", "bg-danger");
+          }
+        } else {
+          // AxiosErrorでない場合
+          console.error("予期しないエラー:", error);
+          showToastMessage("タスクの更新に失敗しました", "bg-danger");
+        }
       }
     } else {
       showToastMessage("タスクの更新に失敗しました", "bg-danger");
     }
   };
 
-  // 緊急度の計算
   const getPriorityColor = (dueDate: string) => {
     const currentDate = new Date();
     const taskDueDate = new Date(dueDate);

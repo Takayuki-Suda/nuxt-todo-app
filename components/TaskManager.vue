@@ -44,9 +44,7 @@
     :current-edit-task="taskState.state.currentEditTask"
     @close-edit-modal="operations.closeEditModal"
     @save-edit-task="operations.saveEditTask"
-    @update:current-edit-task="
-      (value) => (taskState.state.currentEditTask = value)
-    "
+    @update:current-edit-task="(value: Task) => (taskState.state.currentEditTask = value)"
   />
 
   <ToastNotification
@@ -55,11 +53,11 @@
     :toast-message="taskState.toastMessage"
     @close="taskState.showToast = false"
   />
-  <!-- 詳細情報を表示するモーダル -->
+  
   <TaskDetailsModal
-    v-if="taskState.selectedTask"
-    :task="taskState.selectedTask"
-    @close="taskState.selectedTask = null"
+    v-if="taskState.state.selectedTask"
+    :task="taskState.state.selectedTask"
+    @close="taskState.state.selectedTask = null"
   />
 </template>
 
@@ -72,6 +70,7 @@ import ToastNotification from "./ToastNotification.vue";
 import Pagination from "./Pagination.vue";
 import EditModal from "./EditModal.vue";
 import TaskDetailsModal from "./TaskDetailsModal.vue";
+import type { Task } from "~/types/task";
 
 defineProps({
   task: {
@@ -84,8 +83,9 @@ const { taskState, operations } = useTasks();
 
 // 詳細ボタンが押された時の処理
 const openDetails = (index: number) => {
-  const task = taskState.state.tasks[index]; // 選択されたタスク
-  taskState.selectedTask = task; // 選択タスクを保存
+  const actualIndex = index + (taskState.state.currentPage - 1) * taskState.state.tasksPerPage;
+  const task = taskState.state.tasks[actualIndex]; // 選択されたタスクを取得
+  taskState.state.selectedTask = task; // 選択タスクを保存
 };
 </script>
 

@@ -14,4 +14,5 @@ export interface TaskState {
   tasksPerPage: number;
   newTask: string;
   selectedTasks: number[];
+  selectedTask: Task | null;
 }

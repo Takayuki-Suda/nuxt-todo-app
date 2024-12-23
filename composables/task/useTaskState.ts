@@ -12,6 +12,7 @@ export function useTaskState() {
     currentEditTask: null,
     currentPage: 1,
     tasksPerPage: 5,
+    selectedTask: null,
   };
 
   const state = ref<TaskState>(initialState);
