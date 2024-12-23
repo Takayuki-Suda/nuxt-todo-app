@@ -81,17 +81,6 @@ export function useTaskOperations(
       // サーバーからのレスポンスが正常な場合
       if (response.status === 201) {
         console.log("サーバーレスポンス:", response);
-
-        const addedTask = response.data.task; // 追加されたタスク
-        console.log("追加されたタスク:", addedTask);
-
-        // 状態を更新して、タスクを追加
-        state.value.tasks.push(addedTask);
-
-        console.log("タスクが正常に追加されました。");
-
-        // 状態が更新されたことを通知（必要に応じてUI側に反映）
-        // 例えば、リスト更新のために再レンダリングする必要があるかもしれません
       } else {
         console.error("サーバーエラー:", response.data);
       }
@@ -99,16 +88,6 @@ export function useTaskOperations(
       console.error("タスク保存エラー:", error);
     }
   };
-
-  watch(
-    () => state.value.tasks,
-    () => {
-      console.log("タスクが変更されました。必要に応じて保存してください。");
-      // 自動保存をコメントアウトまたは頻度を制御
-      // saveTasks();
-    },
-    { deep: true }
-  );
 
   const clearInput = () => {
     state.value.newTask = "";
