@@ -40,22 +40,13 @@
 
 <script setup lang="ts">
 import { defineProps } from "vue";
+import { formatDueDate } from "~/utils/dateUtils"; // インポート
+
 import type { Task } from "~/types/task";
 
 const props = defineProps<{
   task: Task | null;
 }>();
-
-const formatDueDate = (dueDate: string) => {
-  const options: Intl.DateTimeFormatOptions = {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  };
-  return new Date(dueDate).toLocaleString("ja-JP", options);
-};
 </script>
 
 <style scoped>

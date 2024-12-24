@@ -74,10 +74,11 @@ const formattedDueDate = ref("");
 watch(
   () => props.currentEditTask.dueDate,
   (newDueDate) => {
-    // dueDateがISO形式の場合、YYYY-MM-DD形式に変換して表示
+    // dueDateがISO形式の場合、ローカルタイムゾーンでYYYY-MM-DD形式に変換して表示
     if (newDueDate) {
       const date = new Date(newDueDate);
-      formattedDueDate.value = date.toISOString().split("T")[0]; // YYYY-MM-DD形式
+      // ローカルタイムゾーンで表示
+      formattedDueDate.value = date.toLocaleDateString("en-CA"); // YYYY-MM-DD形式
     }
   },
   { immediate: true }
