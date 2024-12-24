@@ -50,18 +50,21 @@ def add_task():
     try:
         data = request.get_json()
 
+        # dataが辞書型であることを確認
+        if not isinstance(data, dict):
+            return jsonify({"error": "Invalid data format, expected a JSON object"}), 400
+
+        # 必要なフィールドがない場合の処理
         if not data.get('text') or not data.get('details'):
             return jsonify({"error": "Text and details are required"}), 400
 
-        task = data
-        text = task.get('text').strip()
-        completed = task.get('completed', False)
-        due_date = task.get('dueDate')
-        details = task.get('details', None)
+        text = data.get('text').strip()
+        completed = data.get('completed', False)
+        due_date = data.get('dueDate')
+        details = data.get('details', None)
 
         # 日付の処理
         if due_date:
-            # 'Z'がある場合はUTCとみなして処理
             if due_date.endswith('Z'):
                 due_date = due_date[:-1] + '+00:00'  # 'Z'を+00:00に変換
             due_date = datetime.fromisoformat(due_date).strftime('%Y-%m-%d %H:%M:%S')
@@ -73,9 +76,9 @@ def add_task():
         )
         mysql.connection.commit()
 
-        return jsonify({"message": "タスクが正常に追加されました", "task": task}), 201
+        return jsonify({"message": "タスクが正常に追加されました", "task": data}), 201
+
     except Exception as e:
-        # 詳細なエラーログを出力
         print("Error occurred:", str(e))
         print("Traceback:", traceback.format_exc())
         return jsonify({"error": f"サーバーエラー: {str(e)}"}), 500
@@ -108,6 +111,9 @@ def update_task(task_id):
         due_date = data.get('dueDate')
         details = data.get('details')
 
+        if not text or completed is None or due_date is None:
+            return jsonify({"error": "text, completed, dueDate are required"}), 400
+
         # 日付の処理
         if due_date:
             if due_date.endswith('Z'):
@@ -127,14 +133,11 @@ def update_task(task_id):
 
         mysql.connection.commit()
 
-        # 更新が成功した場合の返答
         return jsonify({"message": "タスクが正常に更新されました"}), 200
     except Exception as e:
         print("Error occurred:", str(e))
         print("Traceback:", traceback.format_exc())
         return jsonify({"error": f"サーバーエラー: {str(e)}"}), 500
-
-
 
 if __name__ == '__main__':
     app.run(debug=True)

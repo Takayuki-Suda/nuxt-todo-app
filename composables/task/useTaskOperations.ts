@@ -9,7 +9,7 @@ export function useTaskOperations(
   const addTask = async () => {
     try {
       const trimmedTask = state.value.newTask.trim();
-      const taskDetails = state.value.newTaskDetails.trim(); // detailsを取得
+      const taskDetails = state.value.newTaskDetails.trim();
       if (!trimmedTask) return;
 
       if (state.value.tasks.some((task) => task?.text === trimmedTask)) {
@@ -21,25 +21,30 @@ export function useTaskOperations(
         text: trimmedTask,
         completed: false,
         dueDate: new Date().toISOString(),
-        details: taskDetails, // detailsをnewTaskDetailsから設定
+        details: taskDetails || "No details", // taskDetailsが空の場合、空文字を渡す
       };
+
+      console.log("Sending new task:", newTask); // リクエストデータをログに出力
 
       const response = await axios.post(
         "http://localhost:5000/api/tasks",
         newTask
       );
+
       if (response.status === 201) {
-        // レスポンスから保存されたタスクを取得して状態を更新
         state.value.tasks.push(response.data);
         state.value.newTask = "";
-        state.value.newTaskDetails = ""; // detailsフィールドもリセット
+        state.value.newTaskDetails = "";
         showToastMessage("タスクが正常に追加されました！", "bg-success");
+        loadTasks();
       }
     } catch (error) {
       console.error("タスク追加エラー:", error);
       showToastMessage("タスクの追加に失敗しました", "bg-danger");
     }
   };
+
+  // ページロード時にタスクを取得
 
   const removeSelectedTasks = async () => {
     const actualIndexes = state.value.selectedTasks.map((selectedIndex) => {

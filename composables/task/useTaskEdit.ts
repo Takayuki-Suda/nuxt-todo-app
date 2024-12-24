@@ -31,6 +31,11 @@ export function useTaskEdit(
     ) {
       const task = state.value.currentEditTask;
 
+      if (!task.text || !task.details) {
+        showToastMessage("テキストと詳細は必須です", "bg-danger");
+        return;
+      }
+
       if (!task.id) {
         showToastMessage("タスクIDが存在しません", "bg-danger");
         return;
@@ -56,9 +61,7 @@ export function useTaskEdit(
           showToastMessage("タスクの更新に失敗しました", "bg-danger");
         }
       } catch (error: unknown) {
-        // 型ガードを使用して、エラーがAxiosErrorかを確認
         if (axios.isAxiosError(error)) {
-          // AxiosErrorの場合
           console.error("タスク更新エラー:", error);
           if (error.response) {
             showToastMessage(
@@ -74,7 +77,6 @@ export function useTaskEdit(
             showToastMessage("タスクの更新に失敗しました", "bg-danger");
           }
         } else {
-          // AxiosErrorでない場合
           console.error("予期しないエラー:", error);
           showToastMessage("タスクの更新に失敗しました", "bg-danger");
         }

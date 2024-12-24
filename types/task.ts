@@ -3,7 +3,7 @@ export interface Task {
   text: string;
   completed: boolean;
   dueDate: string;
-  details: string;
+  details: string | null;
 }
 
 export interface TaskState {
