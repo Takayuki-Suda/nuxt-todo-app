@@ -76,25 +76,6 @@ export function useTaskOperations(
     showToastMessage("タスクが削除されました！", "bg-danger");
   };
 
-  const saveTasks = async () => {
-    try {
-      // サーバーにタスクを送信
-      const response = await axios.post(
-        "http://localhost:5000/api/tasks",
-        state.value.tasks
-      );
-
-      // サーバーからのレスポンスが正常な場合
-      if (response.status === 201) {
-        console.log("サーバーレスポンス:", response);
-      } else {
-        console.error("サーバーエラー:", response.data);
-      }
-    } catch (error) {
-      console.error("タスク保存エラー:", error);
-    }
-  };
-
   const clearInput = () => {
     state.value.newTask = "";
     state.value.newTaskDetails = ""; // detailsフィールドもクリア
@@ -117,7 +98,6 @@ export function useTaskOperations(
   return {
     addTask,
     removeSelectedTasks,
-    saveTasks,
     clearInput,
     deselectAllTasks,
     loadTasks,

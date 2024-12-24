@@ -111,14 +111,18 @@ def update_task(task_id):
         due_date = data.get('dueDate')
         details = data.get('details')
 
+        # 必須フィールドの確認
         if not text or completed is None or due_date is None:
-            return jsonify({"error": "text, completed, dueDate are required"}), 400
+            return jsonify({"error": "text, completed, and dueDate are required"}), 400
 
         # 日付の処理
         if due_date:
             if due_date.endswith('Z'):
                 due_date = due_date[:-1] + '+00:00'  # 'Z'を+00:00に変換
-            due_date = datetime.fromisoformat(due_date).strftime('%Y-%m-%d %H:%M:%S')
+            try:
+                due_date = datetime.fromisoformat(due_date).strftime('%Y-%m-%d %H:%M:%S')
+            except ValueError:
+                return jsonify({"error": "Invalid dueDate format. Expected ISO 8601 format."}), 400
 
         # SQLクエリで更新
         cur = mysql.connection.cursor()
@@ -127,9 +131,6 @@ def update_task(task_id):
             SET text = %s, completed = %s, dueDate = %s, details = %s 
             WHERE id = %s
         """, (text, completed, due_date, details, task_id))
-        
-        # デバッグ用出力
-        print(f"Executed query for task ID {task_id}: UPDATE tasks SET text = {text}, completed = {completed}, dueDate = {due_date}, details = {details}")
 
         mysql.connection.commit()
 
@@ -138,6 +139,7 @@ def update_task(task_id):
         print("Error occurred:", str(e))
         print("Traceback:", traceback.format_exc())
         return jsonify({"error": f"サーバーエラー: {str(e)}"}), 500
+
 
 if __name__ == '__main__':
     app.run(debug=True)

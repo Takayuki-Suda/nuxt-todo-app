@@ -4,8 +4,7 @@ import axios, { AxiosError } from "axios"; // AxiosErrorをインポートして
 
 export function useTaskEdit(
   state: Ref<TaskState>,
-  showToastMessage: (message: string, type: string) => void,
-  saveTasks: () => void
+  showToastMessage: (message: string, type: string) => void
 ) {
   const openEditModal = (index: number) => {
     const pageOffset = (state.value.currentPage - 1) * state.value.tasksPerPage;
@@ -54,7 +53,7 @@ export function useTaskEdit(
 
         if (response.status === 200) {
           state.value.tasks[state.value.currentEditTaskIndex] = { ...task };
-          saveTasks();
+
           showToastMessage("タスクが更新されました！", "bg-info");
           closeEditModal();
         } else {
