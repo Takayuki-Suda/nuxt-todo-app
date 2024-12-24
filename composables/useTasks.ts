@@ -1,9 +1,7 @@
 // useTasks.ts
 import { onMounted, reactive } from "vue";
-import type { Task, TaskState } from "~/types/task";
 import { useTaskState } from "./task/useTaskState";
 import { useTaskPagination } from "./task/useTaskPagination";
-import { useTaskDragDrop } from "./task/useTaskDragDrop";
 import { useTaskOperations } from "./task/useTaskOperations";
 import { useTaskEdit } from "./task/useTaskEdit";
 import { useTaskNotification } from "./task/useTaskNotification";
@@ -32,8 +30,7 @@ export function useTasks() {
   // 操作関数を別のオブジェクトにまとめる
   const operations = {
     ...useTaskOperations(state, showToastMessage),
-    ...useTaskDragDrop(state, () => operations.saveTasks()),
-    ...useTaskEdit(state, showToastMessage, () => operations.saveTasks()),
+    ...useTaskEdit(state, showToastMessage),
   };
 
   // クライアントサイドでのみ実行
@@ -48,24 +45,6 @@ export function useTasks() {
       }
     }
   });
-
-  // タスクをデータベースに保存
-  const saveTasks = async () => {
-    if (process.client) {
-      try {
-        await axios.post("http://localhost:5000/api/tasks", {
-          text: state.value.newTask,
-          completed: false,
-          dueDate: new Date().toISOString(),
-        });
-        showToastMessage("タスクが正常に追加されました！", "bg-success");
-        await loadTasks(); // タスクを再読み込み
-      } catch (error) {
-        console.error("Failed to save task:", error);
-        showToastMessage("タスクの追加に失敗しました", "bg-danger");
-      }
-    }
-  };
 
   // タスクの再読み込み
   const loadTasks = async () => {
