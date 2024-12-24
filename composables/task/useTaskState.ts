@@ -13,6 +13,7 @@ export function useTaskState() {
     currentPage: 1,
     tasksPerPage: 5,
     selectedTask: null,
+    newTaskDetails: "",
   };
 
   const state = ref<TaskState>(initialState);

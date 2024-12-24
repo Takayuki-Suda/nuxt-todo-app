@@ -43,6 +43,7 @@ export function useTaskEdit(
             text: task.text,
             completed: task.completed,
             dueDate: task.dueDate,
+            details: task.details, // 詳細情報も送信
           }
         );
 

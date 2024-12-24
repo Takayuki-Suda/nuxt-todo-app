@@ -53,7 +53,7 @@
     :toast-message="taskState.toastMessage"
     @close="taskState.showToast = false"
   />
-  
+
   <TaskDetailsModal
     v-if="taskState.state.selectedTask"
     :task="taskState.state.selectedTask"
@@ -83,7 +83,8 @@ const { taskState, operations } = useTasks();
 
 // 詳細ボタンが押された時の処理
 const openDetails = (index: number) => {
-  const actualIndex = index + (taskState.state.currentPage - 1) * taskState.state.tasksPerPage;
+  const actualIndex =
+    index + (taskState.state.currentPage - 1) * taskState.state.tasksPerPage;
   const task = taskState.state.tasks[actualIndex]; // 選択されたタスクを取得
   taskState.state.selectedTask = task; // 選択タスクを保存
 };

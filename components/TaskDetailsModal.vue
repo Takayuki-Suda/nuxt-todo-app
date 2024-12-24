@@ -18,10 +18,17 @@
         </div>
         <div class="modal-body">
           <p><strong>タスク名:</strong> {{ task.text }}</p>
+          <p><strong>詳細:</strong> {{ task.details || "なし" }}</p>
           <p><strong>完了:</strong> {{ task.completed ? "はい" : "いいえ" }}</p>
           <p><strong>締切:</strong> {{ formatDueDate(task.dueDate) }}</p>
         </div>
         <div class="modal-footer">
+          <button class="btn btn-warning" @click="$emit('edit', task)">
+            編集
+          </button>
+          <button class="btn btn-danger" @click="$emit('delete', task.id)">
+            削除
+          </button>
           <button class="btn btn-secondary" @click="$emit('close')">
             閉じる
           </button>
@@ -40,8 +47,14 @@ const props = defineProps<{
 }>();
 
 const formatDueDate = (dueDate: string) => {
-  const date = new Date(dueDate);
-  return date.toLocaleDateString(); // 日付をフォーマット
+  const options: Intl.DateTimeFormatOptions = {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  };
+  return new Date(dueDate).toLocaleString("ja-JP", options);
 };
 </script>
 

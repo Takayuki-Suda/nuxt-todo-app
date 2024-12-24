@@ -1,8 +1,6 @@
-import { watch } from "vue";
 import type { Ref } from "vue";
 import type { TaskState, Task } from "~/types/task";
 import axios from "axios";
-import { AxiosError } from "axios";
 
 export function useTaskOperations(
   state: Ref<TaskState>,
@@ -11,6 +9,7 @@ export function useTaskOperations(
   const addTask = async () => {
     try {
       const trimmedTask = state.value.newTask.trim();
+      const taskDetails = state.value.newTaskDetails.trim(); // detailsを取得
       if (!trimmedTask) return;
 
       if (state.value.tasks.some((task) => task?.text === trimmedTask)) {
@@ -22,6 +21,7 @@ export function useTaskOperations(
         text: trimmedTask,
         completed: false,
         dueDate: new Date().toISOString(),
+        details: taskDetails, // detailsをnewTaskDetailsから設定
       };
 
       const response = await axios.post(
@@ -32,6 +32,7 @@ export function useTaskOperations(
         // レスポンスから保存されたタスクを取得して状態を更新
         state.value.tasks.push(response.data);
         state.value.newTask = "";
+        state.value.newTaskDetails = ""; // detailsフィールドもリセット
         showToastMessage("タスクが正常に追加されました！", "bg-success");
       }
     } catch (error) {
@@ -91,6 +92,7 @@ export function useTaskOperations(
 
   const clearInput = () => {
     state.value.newTask = "";
+    state.value.newTaskDetails = ""; // detailsフィールドもクリア
   };
 
   const deselectAllTasks = () => {

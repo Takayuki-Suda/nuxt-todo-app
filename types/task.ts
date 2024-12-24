@@ -3,6 +3,7 @@ export interface Task {
   text: string;
   completed: boolean;
   dueDate: string;
+  details: string;
 }
 
 export interface TaskState {
@@ -13,6 +14,7 @@ export interface TaskState {
   currentPage: number;
   tasksPerPage: number;
   newTask: string;
+  newTaskDetails: string;
   selectedTasks: number[];
   selectedTask: Task | null;
 }
