@@ -77,8 +77,7 @@ watch(
     // dueDateがISO形式の場合、ローカルタイムゾーンでYYYY-MM-DD形式に変換して表示
     if (newDueDate) {
       const date = new Date(newDueDate);
-      // ローカルタイムゾーンで表示
-      formattedDueDate.value = date.toLocaleDateString("en-CA"); // YYYY-MM-DD形式
+      formattedDueDate.value = date.toLocaleDateString("en-CA");
     }
   },
   { immediate: true }
