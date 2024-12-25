@@ -135,6 +135,10 @@ const handleTaskClick = (index: number) => {
   ) {
     return;
   }
+  // 完了したタスクの場合は選択を切り替えない
+  if (props.paginatedTasks[index].completed) {
+    return;
+  }
 
   updateSelectedTasks(index);
 };
