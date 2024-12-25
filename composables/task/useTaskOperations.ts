@@ -22,6 +22,7 @@ export function useTaskOperations(
         completed: false,
         dueDate: new Date().toISOString(),
         details: taskDetails || "No details", // taskDetailsが空の場合、空文字を渡す
+        order: state.value.tasks.length + 1, // タスクの順番を末尾に追加
       };
 
       console.log("Sending new task:", newTask); // リクエストデータをログに出力

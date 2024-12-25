@@ -4,6 +4,7 @@ export interface Task {
   completed: boolean;
   dueDate: string;
   details: string | null;
+  order: number; // タスクの順番を示す
 }
 
 export interface TaskState {

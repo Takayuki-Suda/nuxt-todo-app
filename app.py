@@ -1,12 +1,12 @@
 from flask import Flask, request, jsonify
 from flask_mysqldb import MySQL
-from flask_cors import CORS  # flask-corsのインポート
+from flask_cors import CORS
 from datetime import datetime
 import traceback
 
 app = Flask(__name__)
 
-# CORSの設定
+# CORS設定
 CORS(app)
 
 # MySQL設定
@@ -24,7 +24,7 @@ mysql = MySQL(app)
 def get_tasks():
     try:
         cur = mysql.connection.cursor()
-        cur.execute('SELECT * FROM tasks')
+        cur.execute('SELECT * FROM tasks ORDER BY `order`')
         tasks = cur.fetchall()
 
         task_list = []
@@ -35,7 +35,7 @@ def get_tasks():
                 "text": task['text'],
                 "completed": bool(task['completed']),
                 "dueDate": due_date,
-                "details": task.get('details')  # detailsも返す
+                "details": task.get('details')
             })
 
         return jsonify(task_list), 200
@@ -118,16 +118,11 @@ def delete_task(task_id):
         print("Traceback:", traceback.format_exc())
         return jsonify({"error": f"サーバーエラー: {str(e)}"}), 500
 
-
 # タスクの更新
 @app.route('/api/tasks/<int:task_id>', methods=['PUT'])
 def update_task(task_id):
     try:
         data = request.get_json()
-
-        # デバッグ用出力
-        print("Received data:", data)
-        print("Updating task with ID:", task_id)
 
         text = data.get('text')
         completed = data.get('completed')
@@ -149,7 +144,7 @@ def update_task(task_id):
 
         # SQLクエリで更新
         cur = mysql.connection.cursor()
-        cur.execute("""
+        cur.execute(""" 
             UPDATE tasks 
             SET text = %s, completed = %s, dueDate = %s, details = %s 
             WHERE id = %s
@@ -162,6 +157,49 @@ def update_task(task_id):
         print("Error occurred:", str(e))
         print("Traceback:", traceback.format_exc())
         return jsonify({"error": f"サーバーエラー: {str(e)}"}), 500
+
+# タスクの順序を更新
+@app.route('/api/tasks/order', methods=['PUT'])
+def update_task_order():
+    try:
+        data = request.get_json()
+
+        if not isinstance(data, list):
+            return jsonify({"error": "Invalid data format, expected a list of tasks"}), 400
+
+        cur = mysql.connection.cursor()
+
+        # タスクの順序を一括更新
+        try:
+            for task in data:
+                task_id = task.get('id')
+                new_order = task.get('order')
+
+                if task_id is None or new_order is None:
+                    return jsonify({"error": "Task ID and order are required"}), 400
+
+                cur.execute("""
+                    UPDATE tasks
+                    SET `order` = %s
+                    WHERE id = %s
+                """, (new_order, task_id))
+
+            # コミットして変更を確定
+            mysql.connection.commit()
+
+            return jsonify({"message": "タスクの順序が正常に更新されました"}), 200
+
+        except Exception as e:
+            # エラー発生時にロールバック
+            mysql.connection.rollback()
+            return jsonify({"error": f"サーバーエラー: {str(e)}"}), 500
+
+    except Exception as e:
+        return jsonify({"error": f"サーバーエラー: {str(e)}"}), 500
+
+
+
+
 
 
 if __name__ == '__main__':
