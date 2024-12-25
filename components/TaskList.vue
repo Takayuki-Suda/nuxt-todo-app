@@ -7,7 +7,10 @@
       draggable="true"
       :class="[
         getDraggingClasses(index),
-        { 'selected-task': isSelected(index) },
+        {
+          'selected-task': isSelected(index),
+          'completed-task': task.completed,
+        },
       ]"
       @click="handleTaskClick(index)"
       @dragstart="onDragStart(index)"
@@ -147,13 +150,6 @@ const onDragEnd = () => {
   draggingTaskIndex.value = null;
   dragDirection.value = "";
 };
-
-// 完了・未完了チェックボックスをクリックしたときにタスクを完了/未完了に切り替える
-const toggleTaskCompletion = (index: number, isCompleted: boolean) => {
-  const task = props.paginatedTasks[index];
-  task.completed = isCompleted; // 完了状態を切り替える
-};
-
 // 緊急度に基づくクラスを返す関数
 const getPriorityClass = (task: Task) => {
   const priority = getPriorityLabel(task);
@@ -253,6 +249,11 @@ const getPriorityLabel = (task: Task) => {
   }
 }
 
+/* 完了したタスクを青くするスタイル */
+.completed-task {
+  background-color: #e3f2fd; /* 薄い水色 */
+  color: #1e88e5;
+}
 /* 遅延クラス */
 .bg-delay {
   background-color: red !important;
