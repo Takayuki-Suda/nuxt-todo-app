@@ -51,10 +51,7 @@ export function useTaskDragDrop(state: Ref<TaskState>) {
 
       // タスクの移動
       state.value.tasks.splice(draggedTaskIndex.value, 1);
-      const insertIndex =
-        dragDirection.value === "up" ? targetIndex : targetIndex + 1;
-      state.value.tasks.splice(insertIndex, 0, taskToMove);
-
+      state.value.tasks.splice(targetIndex, 0, draggedTask);
       // orderの再計算
       state.value.tasks.forEach((task, index) => {
         task.order = index; // 新しい順番に基づいてorderを更新
