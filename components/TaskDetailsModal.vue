@@ -23,12 +23,6 @@
           <p><strong>締切:</strong> {{ formatDueDate(task.dueDate) }}</p>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-warning" @click="$emit('edit', task)">
-            編集
-          </button>
-          <button class="btn btn-danger" @click="$emit('delete', task.id)">
-            削除
-          </button>
           <button class="btn btn-secondary" @click="$emit('close')">
             閉じる
           </button>
