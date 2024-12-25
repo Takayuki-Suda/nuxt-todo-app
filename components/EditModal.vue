@@ -38,6 +38,17 @@
             placeholder="タスクの詳細を入力してください"
             rows="4"
           ></textarea>
+
+          <!-- 完了チェックボックス -->
+          <div class="form-check mt-2">
+            <input
+              v-model="currentEditTask.completed"
+              type="checkbox"
+              class="form-check-input"
+              id="taskCompleted"
+            />
+            <label class="form-check-label" for="taskCompleted"> 完了 </label>
+          </div>
         </div>
         <div class="modal-footer">
           <button class="btn btn-secondary" @click="$emit('closeEditModal')">
