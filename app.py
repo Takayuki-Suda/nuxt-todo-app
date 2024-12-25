@@ -44,17 +44,15 @@ def get_tasks():
         print("Traceback:", traceback.format_exc())
         return jsonify({"error": f"データベースエラー: {str(e)}"}), 500
 
-# タスクの追加
+# タスクの追加（orderを順番に設定）
 @app.route('/api/tasks', methods=['POST'])
 def add_task():
     try:
         data = request.get_json()
 
-        # dataが辞書型であることを確認
         if not isinstance(data, dict):
             return jsonify({"error": "Invalid data format, expected a JSON object"}), 400
 
-        # 必要なフィールドがない場合の処理
         if not data.get('text') or not data.get('details'):
             return jsonify({"error": "Text and details are required"}), 400
 
@@ -63,16 +61,24 @@ def add_task():
         due_date = data.get('dueDate')
         details = data.get('details', None)
 
-        # 日付の処理
         if due_date:
             if due_date.endswith('Z'):
-                due_date = due_date[:-1] + '+00:00'  # 'Z'を+00:00に変換
+                due_date = due_date[:-1] + '+00:00'
             due_date = datetime.fromisoformat(due_date).strftime('%Y-%m-%d %H:%M:%S')
 
         cur = mysql.connection.cursor()
+
+        # 現在の最大orderを取得
+        cur.execute("SELECT MAX(`order`) AS max_order FROM tasks")
+        max_order_result = cur.fetchone()
+        max_order = max_order_result['max_order'] if max_order_result['max_order'] is not None else -1
+
+        # 次のorderを設定
+        next_order = max_order + 1
+
         cur.execute(
-            """INSERT INTO tasks (text, completed, dueDate, details) VALUES (%s, %s, %s, %s)""",
-            (text, completed, due_date, details if details else None)
+            """INSERT INTO tasks (text, completed, dueDate, details, `order`) VALUES (%s, %s, %s, %s, %s)""",
+            (text, completed, due_date, details if details else None, next_order)
         )
         mysql.connection.commit()
 
@@ -83,18 +89,35 @@ def add_task():
         print("Traceback:", traceback.format_exc())
         return jsonify({"error": f"サーバーエラー: {str(e)}"}), 500
 
-# タスクの削除
+# タスクの削除（orderを調整）
 @app.route('/api/tasks/<int:task_id>', methods=['DELETE'])
 def delete_task(task_id):
     try:
         cur = mysql.connection.cursor()
+
+        # 削除対象のタスクのorderを取得
+        cur.execute("SELECT `order` FROM tasks WHERE id = %s", [task_id])
+        task_to_delete = cur.fetchone()
+
+        if not task_to_delete:
+            return jsonify({"error": "Task not found"}), 404
+
+        delete_order = task_to_delete['order']
+
+        # タスクを削除
         cur.execute("DELETE FROM tasks WHERE id = %s", [task_id])
         mysql.connection.commit()
+
+        # 削除後、orderを調整
+        cur.execute("UPDATE tasks SET `order` = `order` - 1 WHERE `order` > %s", [delete_order])
+        mysql.connection.commit()
+
         return jsonify({"message": "タスクが正常に削除されました"}), 200
     except Exception as e:
         print("Error occurred:", str(e))
         print("Traceback:", traceback.format_exc())
         return jsonify({"error": f"サーバーエラー: {str(e)}"}), 500
+
 
 # タスクの更新
 @app.route('/api/tasks/<int:task_id>', methods=['PUT'])
