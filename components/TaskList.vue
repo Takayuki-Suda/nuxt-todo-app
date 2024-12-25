@@ -16,12 +16,12 @@
       @dragend="onDragEnd"
     >
       <div class="d-flex w-100 align-items-center">
-        <!-- タスク名左側に完了チェックボックス -->
+        <!-- チェックボックスを押せないように修正 -->
         <input
           type="checkbox"
           class="form-check-input me-3"
           :checked="task.completed"
-          @change="toggleTaskCompletion(index, $event.target.checked)"
+          :disabled="true"
         />
 
         <div class="task-text-container">
