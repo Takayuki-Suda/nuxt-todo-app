@@ -1,5 +1,10 @@
 <template>
   <div class="list-group">
+    <!-- 並べ替えボタン -->
+    <button class="btn btn-primary mb-3" @click="sortTasksByDueDate">
+      期限順に並べ替え
+    </button>
+
     <div
       v-for="(task, index) in paginatedTasks"
       :key="task.text"
@@ -59,6 +64,7 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
+import axios from "axios";
 import { useTaskDragDrop } from "~/composables/task/useTaskDragDrop";
 import type { TaskState, Task } from "~/types/task";
 
@@ -194,6 +200,38 @@ const getPriorityLabel = (task: Task) => {
     return "低"; // 1ヶ月以内
   } else {
     return "低"; // それ以上
+  }
+};
+
+// タスクを期限順に並べ替える関数
+const sortTasksByDueDate = async () => {
+  try {
+    // バックエンドに並べ替えリクエストを送信
+    const response = await axios.put(
+      "http://localhost:5000/api/tasks/sort_by_due_date"
+    );
+
+    if (response.status === 200) {
+      // 並べ替えが成功したら、タスクを再取得して更新
+      await loadTasks();
+      props.state.currentPage = 1; // 並べ替え後にページを最初に戻す
+      alert("タスクが期限順に並べ替えられました！");
+    }
+  } catch (error) {
+    console.error("タスクの並べ替えに失敗しました:", error);
+    alert("タスクの並べ替えに失敗しました。");
+  }
+};
+
+// タスクの取得
+const loadTasks = async () => {
+  try {
+    const response = await axios.get("http://localhost:5000/api/tasks");
+    props.state.paginatedTasks = response.data;
+    console.log("タスクの取得に成功しました:", response.data);
+  } catch (error) {
+    console.error("タスクの取得に失敗しました:", error);
+    props.state.paginatedTasks = [];
   }
 };
 </script>

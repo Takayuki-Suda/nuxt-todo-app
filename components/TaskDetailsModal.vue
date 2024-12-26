@@ -36,7 +36,6 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps } from "vue";
 import { formatDueDate } from "~/utils/dateUtils"; // インポート
 
 import type { Task } from "~/types/task";

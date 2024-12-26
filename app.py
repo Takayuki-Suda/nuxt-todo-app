@@ -198,6 +198,44 @@ def update_task_order():
         return jsonify({"error": f"サーバーエラー: {str(e)}"}), 500
 
 
+@app.route('/api/tasks/sort_by_due_date', methods=['PUT'])
+def sort_tasks_by_due_date():
+    try:
+        cur = mysql.connection.cursor()
+
+        # 完了していないタスクを期限順に取得
+        cur.execute("SELECT id FROM tasks WHERE completed = 0 ORDER BY dueDate ASC")
+        tasks_incomplete = cur.fetchall()
+
+        # 完了したタスクを取得
+        cur.execute("SELECT id FROM tasks WHERE completed = 1 ORDER BY dueDate ASC")
+        tasks_complete = cur.fetchall()
+
+        # 完了していないタスクの順番でorderを更新
+        for index, task in enumerate(tasks_incomplete):
+            cur.execute("""
+                UPDATE tasks
+                SET `order` = %s
+                WHERE id = %s
+            """, (index, task['id']))
+
+        # 完了したタスクの順番でorderを更新（完了タスクは最後尾に）
+        offset = len(tasks_incomplete)  # 完了タスクの最初の位置は未完了タスクの数
+        for index, task in enumerate(tasks_complete):
+            cur.execute("""
+                UPDATE tasks
+                SET `order` = %s
+                WHERE id = %s
+            """, (offset + index, task['id']))
+
+        mysql.connection.commit()
+
+        return jsonify({"message": "タスクが期限順に並び替えられました"}), 200
+
+    except Exception as e:
+        print("Error occurred:", str(e))
+        print("Traceback:", traceback.format_exc())
+        return jsonify({"error": f"サーバーエラー: {str(e)}"}), 500
 
 
 
