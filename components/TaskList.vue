@@ -1,15 +1,16 @@
 <template>
+  <div class="mb-3">
+    <!-- 並べ替えボタン -->
+    <button class="btn btn-primary" @click="sortTasksByDueDate">
+      期限順に並べ替え
+    </button>
+  </div>
   <div
     class="list-group"
     :class="{
       'bg-delay-parent': hasDelayedTasks(),
     }"
   >
-    <!-- 並べ替えボタン -->
-    <button class="btn btn-primary mb-3" @click="sortTasksByDueDate">
-      期限順に並べ替え
-    </button>
-
     <div
       v-for="(task, index) in paginatedTasks"
       :key="task.text"
