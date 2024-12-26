@@ -56,6 +56,13 @@
           編集
         </button>
 
+        <!-- 期日表示 -->
+        <div class="due-date-container ms-3">
+          <span class="badge bg-light text-dark">
+            {{ formatDueDate(task.dueDate) }}
+          </span>
+        </div>
+
         <!-- 緊急度表示 -->
         <div class="priority-container ms-3">
           <span :class="['badge', getPriorityClass(task)]">
@@ -249,6 +256,17 @@ const loadTasks = async () => {
 const reloadPage = () => {
   window.location.reload();
 };
+
+// 期日を表示するための日付フォーマット関数
+const formatDueDate = (dueDate: string) => {
+  const date = new Date(dueDate);
+  const options: Intl.DateTimeFormatOptions = {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  };
+  return date.toLocaleDateString("ja-JP", options);
+};
 </script>
 
 <style scoped>
@@ -257,6 +275,16 @@ const reloadPage = () => {
 /* 選択されたタスクに色を付ける */
 .selected-task {
   background-color: #d1e7dd; /* 選択されたタスクの背景色 */
+}
+
+/* 期日表示のスタイル */
+.due-date-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-left: 10px;
+  font-size: 1.2rem; /* フォントサイズをアップ */
+  font-weight: bold; /* フォントを太くする場合 */
 }
 
 .priority-container {
