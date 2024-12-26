@@ -18,36 +18,49 @@
         </div>
         <div class="modal-body">
           <!-- タスク名 -->
-          <input
-            v-model="currentEditTask.text"
-            type="text"
-            class="form-control"
-            placeholder="タスクを編集してください"
-          />
-          <!-- 締め切り日 -->
-          <input
-            v-model="formattedDueDate"
-            type="date"
-            class="form-control mt-2"
-            @input="onDueDateChange"
-          />
-          <!-- 詳細情報 -->
-          <textarea
-            v-model="currentEditTask.details"
-            class="form-control mt-2"
-            placeholder="タスクの詳細を入力してください"
-            rows="4"
-          ></textarea>
-
-          <!-- 完了チェックボックス -->
-          <div class="form-check mt-2">
+          <div>
+            <p><strong>タスク名:</strong></p>
             <input
-              v-model="currentEditTask.completed"
-              type="checkbox"
-              class="form-check-input"
-              id="taskCompleted"
+              v-model="currentEditTask.text"
+              type="text"
+              class="form-control"
+              placeholder="タスクを編集してください"
             />
-            <label class="form-check-label" for="taskCompleted"> 完了 </label>
+          </div>
+          <!-- 締め切り日 -->
+          <div class="mt-3">
+            <p><strong>締切:</strong></p>
+            <input
+              v-model="formattedDueDate"
+              type="date"
+              class="form-control mt-2"
+              @input="onDueDateChange"
+            />
+          </div>
+          <!-- 詳細情報 -->
+          <div class="mt-3">
+            <p><strong>詳細:</strong></p>
+            <textarea
+              v-model="currentEditTask.details"
+              class="form-control mt-2"
+              placeholder="タスクの詳細を入力してください"
+              rows="4"
+            ></textarea>
+          </div>
+          <!-- 完了チェックボックス -->
+          <div class="mt-3">
+            <p>
+              <strong>進捗状況:</strong>
+            </p>
+            <div class="form-check mt-2">
+              <input
+                v-model="currentEditTask.completed"
+                type="checkbox"
+                class="form-check-input"
+                id="taskCompleted"
+              />
+              <label class="form-check-label" for="taskCompleted"> 完了 </label>
+            </div>
           </div>
         </div>
         <div class="modal-footer">
