@@ -90,11 +90,17 @@ import type { TaskState, Task } from "~/types/task";
 const props = defineProps<{
   state: TaskState;
   paginatedTasks: Task[];
+  draggedTaskIndex: number | null; // 追加
+  draggingTaskIndex: number | null; // 追加
+  dragDirection: "up" | "down" | null; // 追加
 }>();
 
 const emit = defineEmits<{
   editTask: [index: number];
-  showDetails: [index: number]; // showDetails イベントを追加
+  showDetails: [index: number];
+  dragStart: [event: DragEvent]; // dragStart イベントを追加
+  dragOver: [event: DragEvent]; // dragOver イベントを追加
+  drop: [event: DragEvent]; // drop イベントを追加
 }>();
 
 // ページネーションを考慮したタスクインデックスを計算
