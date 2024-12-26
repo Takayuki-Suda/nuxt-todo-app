@@ -1,5 +1,10 @@
 <template>
-  <div class="list-group">
+  <div
+    class="list-group"
+    :class="{
+      'bg-delay-parent': hasDelayedTasks(),
+    }"
+  >
     <!-- 並べ替えボタン -->
     <button class="btn btn-primary mb-3" @click="sortTasksByDueDate">
       期限順に並べ替え
@@ -203,6 +208,11 @@ const getPriorityLabel = (task: Task) => {
   }
 };
 
+// 遅延しているタスクが一つ以上あるか判定する関数
+const hasDelayedTasks = () => {
+  return props.paginatedTasks.some((task) => getPriorityLabel(task) === "遅延");
+};
+
 // タスクを期限順に並べ替える関数
 const sortTasksByDueDate = async () => {
   try {
@@ -314,5 +324,26 @@ const loadTasks = async () => {
   right: -10px;
   font-size: 1.5rem;
   animation: flameEffect 1.5s infinite ease-in-out;
+}
+
+/* 親要素に遅延エフェクトを付与 */
+.bg-delay-parent {
+  position: relative;
+  animation: flameEffect 1.5s infinite ease-in-out;
+}
+
+/* 遅延のエフェクト */
+@keyframes flameEffect {
+  0%,
+  100% {
+    box-shadow: 0 0 10px 2px rgba(255, 69, 0, 0.8),
+      0 0 20px 4px rgba(255, 140, 0, 0.6);
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    box-shadow: 0 0 15px 4px rgba(255, 0, 0, 0.9),
+      0 0 30px 6px rgba(255, 69, 0, 0.7);
+    transform: translateY(-3px) scale(1.05);
+  }
 }
 </style>
