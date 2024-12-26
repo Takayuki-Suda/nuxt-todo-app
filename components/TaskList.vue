@@ -223,7 +223,7 @@ const sortTasksByDueDate = async () => {
 
     if (response.status === 200) {
       // 並べ替えが成功したら、タスクを再取得して更新
-      await loadTasks();
+      await reloadPage();
       props.state.currentPage = 1; // 並べ替え後にページを最初に戻す
       alert("タスクが期限順に並べ替えられました！");
     }
@@ -243,6 +243,11 @@ const loadTasks = async () => {
     console.error("タスクの取得に失敗しました:", error);
     props.state.paginatedTasks = [];
   }
+};
+
+// ページを更新する関数
+const reloadPage = () => {
+  window.location.reload();
 };
 </script>
 
