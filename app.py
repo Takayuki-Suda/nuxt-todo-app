@@ -236,9 +236,30 @@ def sort_tasks_by_due_date():
         print("Error occurred:", str(e))
         print("Traceback:", traceback.format_exc())
         return jsonify({"error": f"サーバーエラー: {str(e)}"}), 500
+    
+@app.route('/api/tasks/completed', methods=['delete'])
+def delete_completed_tasks():
+    try:
+        cur = mysql.connection.cursor()
 
+        # トランザクション開始
+        mysql.connection.begin()
 
+        # 完了したタスクを削除
+        cur.execute("DELETE FROM tasks WHERE completed = 1")
 
+        # コミットして変更を保存
+        mysql.connection.commit()
+
+        return jsonify({"message": "完了したタスクが削除されました"}), 200
+
+    except Exception as e:
+        # エラー発生時にはロールバック
+        mysql.connection.rollback()
+        
+        print("Error occurred:", str(e))
+        print("Traceback:", traceback.format_exc())
+        return jsonify({"error": f"サーバーエラー: {str(e)}"}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)

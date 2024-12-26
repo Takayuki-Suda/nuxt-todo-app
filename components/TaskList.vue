@@ -4,6 +4,11 @@
     <button class="btn btn-primary" @click="sortTasksByDueDate">
       期限順に並べ替え
     </button>
+
+    <!-- 完了済みタスク削除ボタン -->
+    <button class="btn btn-danger ms-3" @click="deleteCompletedTasks">
+      完了済みタスクを一括削除
+    </button>
   </div>
   <div
     class="list-group"
@@ -267,6 +272,24 @@ const formatDueDate = (dueDate: string) => {
     day: "2-digit",
   };
   return date.toLocaleDateString("ja-JP", options);
+};
+
+// 完了済みタスクを一括削除する処理
+const deleteCompletedTasks = async () => {
+  try {
+    const response = await axios.delete(
+      "http://localhost:5000/api/tasks/completed"
+    );
+
+    if (response.status === 200) {
+      await reloadPage();
+      props.state.currentPage = 1; // 並べ替え後にページを最初に戻す
+      alert("完了済みタスクが削除されました！");
+    }
+  } catch (error) {
+    console.error("完了済みタスクの削除に失敗しました:", error);
+    alert("完了済みタスクの削除に失敗しました。");
+  }
 };
 </script>
 
