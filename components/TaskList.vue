@@ -32,17 +32,25 @@
         @submit.prevent="emitFetchTasksByDueDate"
         v-if="selectedAction === 'search'"
       >
-        <div>
-          <label for="due-date">期限日:</label>
-          <input
-            v-model="dueDate"
-            type="date"
-            id="due-date"
-            name="due-date"
-            required
-          />
-        </div>
-        <button type="submit">検索</button>
+        <label for="due-date">期限日:</label>
+        <input
+          v-model="dueDate"
+          type="date"
+          id="due-date"
+          name="due-date"
+          required
+        />
+
+        <button type="submit" class="btn btn-secondary custom-height me-3">
+          検索
+        </button>
+        <button
+          type="button"
+          class="btn btn-secondary custom-height"
+          @click="clearFilter"
+        >
+          クリア
+        </button>
       </form>
       <!-- 件数セレクトボックス -->
       <select
@@ -296,6 +304,11 @@ const getPriorityLabel = (task: Task) => {
   }
 };
 
+const clearFilter = () => {
+  dueDate.value = "";
+  loadTasks(); // タスクのリストを再取得してフィルタをクリア
+};
+
 // 遅延しているタスクが一つ以上あるか判定する関数
 const hasDelayedTasks = () => {
   return props.paginatedTasks.some((task) => getPriorityLabel(task) === "遅延");
@@ -325,11 +338,11 @@ const sortTasksByDueDate = async () => {
 const loadTasks = async () => {
   try {
     const response = await axios.get("http://localhost:5000/api/tasks");
+    props.state.tasks = response.data;
     props.state.paginatedTasks = response.data;
-    console.log("タスクの取得に成功しました:", response.data);
+    alert("フィルターをクリアしました！");
   } catch (error) {
-    console.error("タスクの取得に失敗しました:", error);
-    props.state.paginatedTasks = [];
+    console.error("フィルターのクリアに失敗しました:", error);
   }
 };
 
