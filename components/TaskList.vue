@@ -1,16 +1,36 @@
 <template>
   <div class="mb-3">
+    <!-- ボタン表示選択セレクトボックス -->
+    <select v-model="selectedAction" class="form-select form-select-sm mb-3">
+      <option value="">-</option>
+      <option value="sort">期限順に並べ替え</option>
+      <option value="deleteCompleted">完了済みタスクを一括削除</option>
+      <option value="search">タスクを検索</option>
+    </select>
+
     <!-- 並べ替えボタン -->
-    <button class="btn btn-primary" @click="sortTasksByDueDate">
+    <button
+      class="btn btn-primary"
+      @click="sortTasksByDueDate"
+      v-if="selectedAction === 'sort'"
+    >
       期限順に並べ替え
     </button>
 
     <!-- 完了済みタスク削除ボタン -->
-    <button class="btn btn-danger ms-3" @click="deleteCompletedTasks">
+    <button
+      class="btn btn-danger ms-3"
+      @click="deleteCompletedTasks"
+      v-if="selectedAction === 'deleteCompleted'"
+    >
       完了済みタスクを一括削除
     </button>
+
     <!-- 期限日入力フォーム -->
-    <form @submit.prevent="emitFetchTasksByDueDate">
+    <form
+      @submit.prevent="emitFetchTasksByDueDate"
+      v-if="selectedAction === 'search'"
+    >
       <div>
         <label for="due-date">期限日:</label>
         <input
@@ -117,6 +137,9 @@ const emit = defineEmits<{
   drop: [event: DragEvent]; // drop イベントを追加
   fetchTasksByDueDate: (dueDate: string) => void; // 追加
 }>();
+
+const selectedAction = ref(""); // 選択されたアクションを管理するためのref
+const dueDate = ref(""); // 期限日を管理するためのref
 
 const emitFetchTasksByDueDate = () => {
   emit("fetchTasksByDueDate", dueDate.value);
@@ -318,8 +341,6 @@ const deleteCompletedTasks = async () => {
   }
 };
 
-const dueDate = ref("");
-
 const fetchTasksByDueDate = async (event: SubmitEvent) => {
   event.preventDefault(); // フォームのデフォルト動作を防ぐ
 
@@ -361,6 +382,7 @@ const fetchTasksByDueDate = async (event: SubmitEvent) => {
 
 <style scoped>
 @import "@/assets/css/dragging-style.css";
+@import "@/assets/css/form-select-style.css";
 
 /* 選択されたタスクに色を付ける */
 .selected-task {
