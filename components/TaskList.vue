@@ -8,53 +8,59 @@
       <option value="search">タスクを検索</option>
     </select>
 
-    <!-- 並べ替えボタン -->
-    <button
-      class="btn btn-primary"
-      @click="sortTasksByDueDate"
-      v-if="selectedAction === 'sort'"
-    >
-      期限順に並べ替え
-    </button>
+    <div class="d-flex">
+      <!-- 並べ替えボタン -->
+      <button
+        class="btn btn-primary"
+        @click="sortTasksByDueDate"
+        v-if="selectedAction === 'sort'"
+      >
+        期限順に並べ替え
+      </button>
 
-    <!-- 完了済みタスク削除ボタン -->
-    <button
-      class="btn btn-danger"
-      @click="deleteCompletedTasks"
-      v-if="selectedAction === 'deleteCompleted'"
-    >
-      完了済みタスクを一括削除
-    </button>
+      <!-- 完了済みタスク削除ボタン -->
+      <button
+        class="btn btn-danger"
+        @click="deleteCompletedTasks"
+        v-if="selectedAction === 'deleteCompleted'"
+      >
+        完了済みタスクを一括削除
+      </button>
 
-    <!-- 期限日入力フォーム -->
-    <form
-      @submit.prevent="emitFetchTasksByDueDate"
-      v-if="selectedAction === 'search'"
-    >
-      <div>
-        <label for="due-date">期限日:</label>
-        <input
-          v-model="dueDate"
-          type="date"
-          id="due-date"
-          name="due-date"
-          required
-        />
-      </div>
-      <button type="submit">検索</button>
-    </form>
+      <!-- 期限日入力フォーム -->
+      <form
+        @submit.prevent="emitFetchTasksByDueDate"
+        v-if="selectedAction === 'search'"
+      >
+        <div>
+          <label for="due-date">期限日:</label>
+          <input
+            v-model="dueDate"
+            type="date"
+            id="due-date"
+            name="due-date"
+            required
+          />
+        </div>
+        <button type="submit">検索</button>
+      </form>
+      <!-- 件数セレクトボックス -->
+      <select
+        id="tasksPerPage"
+        class="form-select form-select-sm custom-width custom-height ms-auto"
+        :value="tasksPerPage"
+        @change="updateTasksPerPage($event)"
+      >
+        <option
+          v-for="option in taskDisplayOptions"
+          :key="option"
+          :value="option"
+        >
+          {{ option }} 件
+        </option>
+      </select>
+    </div>
   </div>
-  <!-- 件数セレクトボックス -->
-  <select
-    id="tasksPerPage"
-    class="form-select form-select-sm custom-width custom-height ms-auto"
-    :value="tasksPerPage"
-    @change="updateTasksPerPage($event)"
-  >
-    <option v-for="option in taskDisplayOptions" :key="option" :value="option">
-      {{ option }} 件
-    </option>
-  </select>
 
   <div
     class="list-group"
@@ -475,6 +481,9 @@ const fetchTasksByDueDate = async (event: SubmitEvent) => {
 
 .custom-width {
   width: 100px;
+}
+.custom-height {
+  height: 40px;
 }
 
 /* 遅延のエフェクト */
