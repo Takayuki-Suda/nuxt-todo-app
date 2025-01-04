@@ -17,7 +17,7 @@
 
     <select
       id="tasksPerPage"
-      class="form-select form-select-sm"
+      class="form-select form-select-sm ms-auto custom-margin"
       :value="tasksPerPage"
       @change="
         $emit(
@@ -53,4 +53,9 @@ defineEmits<{
 
 <style scoped>
 @import "@/assets/css/form-select-style.css";
+
+.custom-margin {
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
 </style>

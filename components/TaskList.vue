@@ -19,7 +19,7 @@
 
     <!-- 完了済みタスク削除ボタン -->
     <button
-      class="btn btn-danger ms-3"
+      class="btn btn-danger"
       @click="deleteCompletedTasks"
       v-if="selectedAction === 'deleteCompleted'"
     >
@@ -382,7 +382,6 @@ const fetchTasksByDueDate = async (event: SubmitEvent) => {
 
 <style scoped>
 @import "@/assets/css/dragging-style.css";
-@import "@/assets/css/form-select-style.css";
 
 /* 選択されたタスクに色を付ける */
 .selected-task {
