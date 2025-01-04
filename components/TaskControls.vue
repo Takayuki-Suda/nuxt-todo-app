@@ -3,14 +3,14 @@
     <button
       class="btn btn-danger me-3"
       @click="$emit('removeSelectedTasks')"
-      :disabled="!selectedTasksCount"
+      v-if="selectedTasksCount > 0"
     >
       タスクを削除
     </button>
     <button
       class="btn btn-secondary me-3"
       @click="$emit('deselectAllTasks')"
-      :disabled="!selectedTasksCount"
+      v-if="selectedTasksCount > 0"
     >
       選択されたタスクをクリア
     </button>
