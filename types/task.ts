@@ -18,4 +18,5 @@ export interface TaskState {
   newTaskDetails: string;
   selectedTasks: number[];
   selectedTask: Task | null;
+  paginatedTasks: Task[]; // 追加
 }

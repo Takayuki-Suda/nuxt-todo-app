@@ -9,6 +9,20 @@
     <button class="btn btn-danger ms-3" @click="deleteCompletedTasks">
       完了済みタスクを一括削除
     </button>
+    <!-- 期限日入力フォーム -->
+    <form @submit.prevent="emitFetchTasksByDueDate">
+      <div>
+        <label for="due-date">期限日:</label>
+        <input
+          v-model="dueDate"
+          type="date"
+          id="due-date"
+          name="due-date"
+          required
+        />
+      </div>
+      <button type="submit">検索</button>
+    </form>
   </div>
   <div
     class="list-group"
@@ -101,7 +115,12 @@ const emit = defineEmits<{
   dragStart: [event: DragEvent]; // dragStart イベントを追加
   dragOver: [event: DragEvent]; // dragOver イベントを追加
   drop: [event: DragEvent]; // drop イベントを追加
+  fetchTasksByDueDate: (dueDate: string) => void; // 追加
 }>();
+
+const emitFetchTasksByDueDate = () => {
+  emit("fetchTasksByDueDate", dueDate.value);
+};
 
 // ページネーションを考慮したタスクインデックスを計算
 const getFullIndex = (index: number) => {
@@ -184,6 +203,7 @@ const onDragEnd = () => {
   draggingTaskIndex.value = null;
   dragDirection.value = "";
 };
+
 // 緊急度に基づくクラスを返す関数
 const getPriorityClass = (task: Task) => {
   const priority = getPriorityLabel(task);
@@ -295,6 +315,46 @@ const deleteCompletedTasks = async () => {
   } catch (error) {
     console.error("完了済みタスクの削除に失敗しました:", error);
     alert("完了済みタスクの削除に失敗しました。");
+  }
+};
+
+const dueDate = ref("");
+
+const fetchTasksByDueDate = async (event: SubmitEvent) => {
+  event.preventDefault(); // フォームのデフォルト動作を防ぐ
+
+  try {
+    const dueDateValue = dueDate.value; // 入力された期限日を取得
+    if (!dueDateValue) {
+      alert("期限日を入力してください");
+      return;
+    }
+
+    // APIリクエストを送信
+    const response = await axios.get(
+      `http://localhost:5000/api/tasks/due-date`,
+      {
+        params: { due_date: dueDateValue }, // 期限日をクエリパラメータとして送信
+      }
+    );
+
+    if (response.status === 200) {
+      console.log("取得したレスポンス:", response.data);
+      props.state.tasks = response.data.tasks; // 検索結果をtasksに設定
+      props.state.paginatedTasks = response.data.tasks;
+
+      // コンソールログで確認
+      console.log("設定されたタスク:", props.state.paginatedTasks);
+
+      // ページ番号をリセット
+      props.state.currentPage = 1;
+    } else {
+      console.error("APIからの応答が不正です:", response);
+      alert("タスクの取得に失敗しました。APIからの応答が不正です。");
+    }
+  } catch (error) {
+    console.error("タスクの取得に失敗しました:", error);
+    alert("タスクの取得に失敗しました。");
   }
 };
 </script>

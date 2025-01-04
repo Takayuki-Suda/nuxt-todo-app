@@ -57,8 +57,28 @@ export function useTasks() {
     }
   };
 
+  // 期限日でタスクを取得
+  const fetchTasksByDueDate = async (dueDate: string) => {
+    try {
+      const response = await axios.get(
+        "http://localhost:5000/api/tasks/dueDate", // 修正
+        {
+          params: { due_date: dueDate },
+        }
+      );
+      state.value.tasks = response.data.tasks; // 検索結果をtasksに設定
+      state.value.paginatedTasks = response.data.tasks; // 追加
+    } catch (error) {
+      console.error("Failed to fetch tasks by due date:", error);
+      state.value.tasks = [];
+      state.value.paginatedTasks = []; // 追加
+    }
+  };
+
   return {
     taskState,
     operations,
+    loadTasks,
+    fetchTasksByDueDate, // 追加
   };
 }

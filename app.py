@@ -261,5 +261,37 @@ def delete_completed_tasks():
         print("Traceback:", traceback.format_exc())
         return jsonify({"error": f"サーバーエラー: {str(e)}"}), 500
 
+
+@app.route('/api/tasks/dueDate', methods=['GET'])
+def get_tasks_by_due_date():
+    try:
+        due_date_str = request.args.get('due_date')
+        if not due_date_str:
+            return jsonify({"error": "期限日を指定してください"}), 400
+
+        query = "SELECT * FROM tasks WHERE dueDate <= %s"
+        cur = mysql.connection.cursor()
+        cur.execute(query, (due_date_str,))
+        tasks = cur.fetchall()
+
+        task_list = []
+        for task in tasks:
+            task_list.append({
+                "id": task["id"],
+                "text": task["text"],
+                "completed": task["completed"],
+                "dueDate": task["dueDate"],
+                "details": task["details"],
+                "order": task["order"]
+            })
+
+        return jsonify({"tasks": task_list}), 200
+
+    except Exception as e:
+        print("Error occurred:", str(e))
+        print(traceback.format_exc())
+        return jsonify({"error": f"サーバーエラー: {str(e)}"}), 500
+
+
 if __name__ == '__main__':
     app.run(debug=True)

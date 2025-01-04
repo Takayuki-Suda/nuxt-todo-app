@@ -27,6 +27,7 @@
           @drag-over="operations.onDragOver"
           @drop="operations.onDrop"
           @edit-task="operations.openEditModal"
+          @fetchTasksByDueDate="fetchTasksByDueDate"
         />
       </div>
 
@@ -71,6 +72,7 @@ import Pagination from "./Pagination.vue";
 import EditModal from "./EditModal.vue";
 import TaskDetailsModal from "./TaskDetailsModal.vue";
 import type { Task } from "~/types/task";
+import axios from "axios"; // ここでaxiosをインポート
 
 defineProps({
   task: {
@@ -87,6 +89,34 @@ const openDetails = (index: number) => {
     index + (taskState.state.currentPage - 1) * taskState.state.tasksPerPage;
   const task = taskState.state.tasks[actualIndex]; // 選択されたタスクを取得
   taskState.state.selectedTask = task; // 選択タスクを保存
+};
+
+const fetchTasksByDueDate = async (dueDate: string) => {
+  console.log("fetchTasksByDueDate called with dueDate:", dueDate);
+  try {
+    const response = await axios.get(
+      `http://localhost:5000/api/tasks/dueDate`,
+      {
+        params: { due_date: dueDate },
+      }
+    );
+
+    if (response.status === 200) {
+      console.log("取得したレスポンス:", response.data);
+      taskState.state.tasks = response.data.tasks; // 検索結果をtasksに設定
+      taskState.state.paginatedTasks = response.data.tasks;
+
+      console.log("設定されたタスク:", taskState.state.paginatedTasks);
+
+      taskState.state.currentPage = 1;
+    } else {
+      console.error("APIからの応答が不正です:", response);
+      alert("タスクの取得に失敗しました。APIからの応答が不正です。");
+    }
+  } catch (error) {
+    console.error("タスクの取得に失敗しました:", error);
+    alert("タスクの取得に失敗しました。");
+  }
 };
 </script>
 

@@ -14,6 +14,7 @@ export function useTaskState() {
     tasksPerPage: 5,
     selectedTask: null,
     newTaskDetails: "",
+    paginatedTasks: [], // 追加
   };
 
   const state = ref<TaskState>(initialState);
