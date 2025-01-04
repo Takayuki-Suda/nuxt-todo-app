@@ -31,17 +31,19 @@
       <form
         @submit.prevent="emitFetchTasksByDueDate"
         v-if="selectedAction === 'search'"
+        class="d-flex align-items-center me-3"
       >
-        <label for="due-date">期限日:</label>
-        <input
-          v-model="dueDate"
-          type="date"
-          id="due-date"
-          name="due-date"
-          required
-        />
-
-        <button type="submit" class="btn btn-secondary custom-height me-3">
+        <div class="me-3">
+          <label for="due-date">期限日:</label>
+          <input
+            v-model="dueDate"
+            type="date"
+            id="due-date"
+            name="due-date"
+            required
+          />
+        </div>
+        <button type="submit" class="btn btn-primary custom-height me-3">
           検索
         </button>
         <button
