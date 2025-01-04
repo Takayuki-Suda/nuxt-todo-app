@@ -44,6 +44,18 @@
       <button type="submit">検索</button>
     </form>
   </div>
+  <!-- 件数セレクトボックス -->
+  <select
+    id="tasksPerPage"
+    class="form-select form-select-sm custom-width custom-height ms-auto"
+    :value="tasksPerPage"
+    @change="updateTasksPerPage($event)"
+  >
+    <option v-for="option in taskDisplayOptions" :key="option" :value="option">
+      {{ option }} 件
+    </option>
+  </select>
+
   <div
     class="list-group"
     :class="{
@@ -124,18 +136,21 @@ import type { TaskState, Task } from "~/types/task";
 const props = defineProps<{
   state: TaskState;
   paginatedTasks: Task[];
-  draggedTaskIndex: number | null; // 追加
-  draggingTaskIndex: number | null; // 追加
-  dragDirection: "up" | "down" | null; // 追加
+  draggedTaskIndex: number | null;
+  draggingTaskIndex: number | null;
+  dragDirection: "up" | "down" | null;
+  tasksPerPage: number;
+  taskDisplayOptions: number[];
 }>();
 
 const emit = defineEmits<{
   editTask: [index: number];
   showDetails: [index: number];
-  dragStart: [event: DragEvent]; // dragStart イベントを追加
-  dragOver: [event: DragEvent]; // dragOver イベントを追加
-  drop: [event: DragEvent]; // drop イベントを追加
-  fetchTasksByDueDate: (dueDate: string) => void; // 追加
+  dragStart: [event: DragEvent];
+  dragOver: [event: DragEvent];
+  drop: [event: DragEvent];
+  fetchTasksByDueDate: (dueDate: string) => void;
+  "update:tasksPerPage": [value: number];
 }>();
 
 const selectedAction = ref(""); // 選択されたアクションを管理するためのref
@@ -143,6 +158,11 @@ const dueDate = ref(""); // 期限日を管理するためのref
 
 const emitFetchTasksByDueDate = () => {
   emit("fetchTasksByDueDate", dueDate.value);
+};
+
+const updateTasksPerPage = (event: Event) => {
+  const target = event.target as HTMLSelectElement;
+  emit("update:tasksPerPage", Number(target.value));
 };
 
 // ページネーションを考慮したタスクインデックスを計算
@@ -382,6 +402,7 @@ const fetchTasksByDueDate = async (event: SubmitEvent) => {
 
 <style scoped>
 @import "@/assets/css/dragging-style.css";
+@import "@/assets/css/form-select-style.css";
 
 /* 選択されたタスクに色を付ける */
 .selected-task {
@@ -450,6 +471,10 @@ const fetchTasksByDueDate = async (event: SubmitEvent) => {
 .bg-delay-parent {
   position: relative;
   animation: flameEffect 1.5s infinite ease-in-out;
+}
+
+.custom-width {
+  width: 100px;
 }
 
 /* 遅延のエフェクト */

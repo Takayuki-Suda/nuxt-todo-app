@@ -10,8 +10,6 @@
       <div class="task-container border p-3">
         <TaskControls
           :selected-tasks-count="taskState.state.selectedTasks.length"
-          v-model:tasks-per-page="taskState.state.tasksPerPage"
-          :task-display-options="taskState.taskDisplayOptions"
           @remove-selected-tasks="operations.removeSelectedTasks"
           @deselect-all-tasks="operations.deselectAllTasks"
         />
@@ -22,12 +20,17 @@
           :dragged-task-index="taskState.draggedTaskIndex"
           :dragging-task-index="taskState.draggingTaskIndex"
           :drag-direction="taskState.dragDirection"
+          :tasks-per-page="taskState.state.tasksPerPage"
+          :task-display-options="taskState.taskDisplayOptions"
           @showDetails="openDetails"
           @drag-start="operations.onDragStart"
           @drag-over="operations.onDragOver"
           @drop="operations.onDrop"
           @edit-task="operations.openEditModal"
           @fetchTasksByDueDate="fetchTasksByDueDate"
+          @update:tasksPerPage="
+            (value) => (taskState.state.tasksPerPage = value)
+          "
         />
       </div>
 

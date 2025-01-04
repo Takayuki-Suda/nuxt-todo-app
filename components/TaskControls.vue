@@ -14,26 +14,6 @@
     >
       選択されたタスクをクリア
     </button>
-
-    <select
-      id="tasksPerPage"
-      class="form-select form-select-sm ms-auto custom-margin"
-      :value="tasksPerPage"
-      @change="
-        $emit(
-          'update:tasksPerPage',
-          Number(($event.target as HTMLSelectElement).value)
-        )
-      "
-    >
-      <option
-        v-for="option in taskDisplayOptions"
-        :key="option"
-        :value="option"
-      >
-        {{ option }} 件
-      </option>
-    </select>
   </div>
 </template>
 
