@@ -74,9 +74,9 @@
   <!-- カラムヘッダーを追加 -->
   <div class="list-group-header d-flex justify-content-between">
     <div class="column-header">タスク名</div>
-    <div class="column-header">操作</div>
     <div class="column-header">締切</div>
     <div class="column-header">緊急度</div>
+    <div class="column-header">操作</div>
   </div>
 
   <div
@@ -103,7 +103,7 @@
       @drop="onDrop(index)"
       @dragend="onDragEnd"
     >
-      <div class="d-flex w-100 align-items-center">
+      <div class="d-flex w-100 align-items-center justify-content-between">
         <!-- チェックボックスを押せないように修正 -->
         <input
           type="checkbox"
@@ -112,30 +112,30 @@
           :disabled="true"
         />
 
-        <div class="task-text-container">
+        <div class="task-text-container flex-grow-1">
           <span :class="{ 'text-decoration-line-through': task.completed }">
             {{ task.text }}
           </span>
         </div>
 
-        <!-- 詳細ボタン -->
-        <button class="btn btn-info btn-sm ms-3" @click="showDetails(index)">
-          詳細
-        </button>
-
         <!-- 期日表示 -->
-        <div class="due-date-container ms-3">
+        <div class="due-date-container">
           <span class="badge bg-light text-dark">
             {{ formatDueDate(task.dueDate) }}
           </span>
         </div>
 
         <!-- 緊急度表示 -->
-        <div class="priority-container ms-3">
+        <div class="priority-container">
           <span :class="['badge', getPriorityClass(task)]">
             {{ getPriorityLabel(task) }}
           </span>
         </div>
+
+        <!-- 詳細ボタン -->
+        <button class="btn btn-info btn-sm" @click="showDetails(index)">
+          詳細
+        </button>
       </div>
     </div>
   </div>
@@ -466,6 +466,7 @@ const fetchTasksByDueDate = async (event: SubmitEvent) => {
   margin-left: 10px;
   font-size: 1.2rem; /* フォントサイズをアップ */
   font-weight: bold; /* フォントを太くする場合 */
+  margin-right: 40px; /* タスクテキストとのスペースを調整 */
 }
 
 .priority-container {
@@ -474,10 +475,7 @@ const fetchTasksByDueDate = async (event: SubmitEvent) => {
   align-items: flex-start;
   margin-left: 10px; /* タスクテキストとのスペースを調整 */
   min-width: 60px; /* 最小幅を指定して、並びがずれないようにする */
-}
-
-.task-text-container {
-  flex-grow: 1; /* タスク名が長くても横幅を広げる */
+  margin-right: 50px; /* タスクテキストとのスペースを調整 */
 }
 
 .badge {
