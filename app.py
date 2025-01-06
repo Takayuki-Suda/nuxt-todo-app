@@ -269,7 +269,7 @@ def get_tasks_by_due_date():
         if not due_date_str:
             return jsonify({"error": "期限日を指定してください"}), 400
 
-        query = "SELECT * FROM tasks WHERE dueDate <= %s"
+        query = "SELECT * FROM tasks WHERE dueDate <= %s ORDER BY dueDate ASC"
         cur = mysql.connection.cursor()
         cur.execute(query, (due_date_str,))
         tasks = cur.fetchall()
