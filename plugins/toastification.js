@@ -18,5 +18,16 @@ export default defineNuxtPlugin((nuxtApp) => {
     rtl: false, // 右から左への表示を設定
   };
 
+  // トースト通知のプラグインをVueアプリに登録
   nuxtApp.vueApp.use(Toast, options);
+
+  // カスタムリデューサー/リバイバーを設定する
+  const { payload } = nuxtApp;
+  payload.addReplacer((key, value) => {
+    // 特定のキーや関数を除外する処理
+    if (typeof value === "function") {
+      return undefined; // 関数を除外
+    }
+    return value; // その他の値はそのまま
+  });
 });
