@@ -10,6 +10,8 @@
       <div class="task-container border p-3">
         <TaskControls
           :selected-tasks-count="taskState.state.selectedTasks.length"
+          :tasks-per-page="taskState.state.tasksPerPage"
+          :task-display-options="taskState.taskDisplayOptions"
           @remove-selected-tasks="operations.removeSelectedTasks"
           @deselect-all-tasks="operations.deselectAllTasks"
         />
