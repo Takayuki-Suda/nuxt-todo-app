@@ -71,6 +71,13 @@
       </select>
     </div>
   </div>
+  <!-- カラムヘッダーを追加 -->
+  <div class="list-group-header d-flex justify-content-between">
+    <div class="column-header">タスク名</div>
+    <div class="column-header">操作</div>
+    <div class="column-header">締切</div>
+    <div class="column-header">緊急度</div>
+  </div>
 
   <div
     class="list-group"
@@ -427,6 +434,31 @@ const fetchTasksByDueDate = async (event: SubmitEvent) => {
 <style scoped>
 @import "@/assets/css/dragging-style.css";
 @import "@/assets/css/form-select-style.css";
+
+/* カラムヘッダーのスタイル */
+.list-group-header {
+  padding: 10px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.column-header {
+  flex: 1;
+  font-weight: bold;
+}
+
+.column-header:nth-child(1) {
+  margin-left: 30px;
+}
+
+.column-header:nth-child(2) {
+  margin-left: 80px;
+}
+.column-header:nth-child(3) {
+  margin-left: 60px;
+}
+.column-header:nth-child(4) {
+  margin-left: 25px;
+}
 
 /* 選択されたタスクに色を付ける */
 .selected-task {
