@@ -29,6 +29,9 @@
           <button class="btn btn-secondary" @click="$emit('close')">
             閉じる
           </button>
+          <button class="btn btn-primary" @click="$emit('editTask', task)">
+            編集
+          </button>
         </div>
       </div>
     </div>

@@ -123,14 +123,6 @@
           詳細
         </button>
 
-        <!-- 編集ボタン -->
-        <button
-          class="btn btn-secondary btn-sm ms-3"
-          @click="$emit('editTask', index)"
-        >
-          編集
-        </button>
-
         <!-- 期日表示 -->
         <div class="due-date-container ms-3">
           <span class="badge bg-light text-dark">

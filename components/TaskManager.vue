@@ -64,6 +64,7 @@
     v-if="taskState.state.selectedTask"
     :task="taskState.state.selectedTask"
     @close="taskState.state.selectedTask = null"
+    @editTask="openEditFromDetails"
   />
 </template>
 
@@ -94,6 +95,13 @@ const openDetails = (index: number) => {
     index + (taskState.state.currentPage - 1) * taskState.state.tasksPerPage;
   const task = taskState.state.tasks[actualIndex]; // 選択されたタスクを取得
   taskState.state.selectedTask = task; // 選択タスクを保存
+};
+
+// 詳細ダイアログから編集ダイアログを開く処理
+const openEditFromDetails = (task: Task) => {
+  taskState.state.currentEditTask = task;
+  taskState.state.isEditModalVisible = true;
+  taskState.state.selectedTask = null; // 詳細ダイアログを閉じる
 };
 
 const fetchTasksByDueDate = async (dueDate: string) => {
