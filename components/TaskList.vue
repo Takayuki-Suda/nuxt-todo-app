@@ -114,7 +114,7 @@
 
         <div class="task-text-container flex-grow-1">
           <span :class="{ 'text-decoration-line-through': task.completed }">
-            {{ task.text }}
+            {{ truncateText(task.text) }}
           </span>
         </div>
 
@@ -421,6 +421,11 @@ const fetchTasksByDueDate = async (event: SubmitEvent) => {
     console.error("タスクの取得に失敗しました:", error);
     alert("タスクの取得に失敗しました。");
   }
+};
+
+// テキストを8文字以上の場合に7文字目で止めて「...」にする関数
+const truncateText = (text: string) => {
+  return text.length > 7 ? text.slice(0, 7) + "..." : text;
 };
 </script>
 
