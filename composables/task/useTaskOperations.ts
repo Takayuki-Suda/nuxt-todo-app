@@ -1,11 +1,14 @@
 import type { Ref } from "vue";
 import type { TaskState, Task } from "~/types/task";
 import axios from "axios";
+import { useToast } from "vue-toastification";
 
 export function useTaskOperations(
   state: Ref<TaskState>,
   showToastMessage: (message: string, type: string) => void
 ) {
+  const toast = useToast();
+
   const addTask = async () => {
     try {
       const trimmedTask = state.value.newTask.trim();
@@ -13,7 +16,7 @@ export function useTaskOperations(
       if (!trimmedTask) return;
 
       if (state.value.tasks.some((task) => task?.text === trimmedTask)) {
-        showToastMessage("タスクが重複しています！", "bg-warning");
+        toast.warning("タスクが重複しています！");
         return;
       }
 
@@ -36,12 +39,12 @@ export function useTaskOperations(
         state.value.tasks.push(response.data);
         state.value.newTask = "";
         state.value.newTaskDetails = "";
-        showToastMessage("タスクが正常に追加されました！", "bg-success");
+        toast.success("タスクが正常に追加されました！");
         loadTasks();
       }
     } catch (error) {
       console.error("タスク追加エラー:", error);
-      showToastMessage("タスクの追加に失敗しました", "bg-danger");
+      toast.error("タスクの追加に失敗しました");
     }
   };
 
@@ -74,7 +77,7 @@ export function useTaskOperations(
     }
 
     state.value.selectedTasks = [];
-    showToastMessage("タスクが削除されました！", "bg-danger");
+    toast.success("タスクが削除されました！");
   };
 
   const clearInput = () => {

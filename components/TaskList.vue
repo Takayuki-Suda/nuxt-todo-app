@@ -147,7 +147,7 @@ import { ref } from "vue";
 import axios from "axios";
 import { useTaskDragDrop } from "~/composables/task/useTaskDragDrop";
 import type { TaskState, Task } from "~/types/task";
-
+import { useToast } from "vue-toastification";
 // props の定義
 const props = defineProps<{
   state: TaskState;
@@ -171,9 +171,11 @@ const emit = defineEmits<{
 
 const selectedAction = ref(""); // 選択されたアクションを管理するためのref
 const dueDate = ref(""); // 期限日を管理するためのref
+const toast = useToast();
 
 const emitFetchTasksByDueDate = () => {
   emit("fetchTasksByDueDate", dueDate.value);
+  toast.success("期限日までのタスクを取得しました！");
 };
 
 const updateTasksPerPage = (event: Event) => {
@@ -328,11 +330,11 @@ const sortTasksByDueDate = async () => {
       // 並べ替えが成功したら、タスクを再取得して更新
       await reloadPage();
       props.state.currentPage = 1; // 並べ替え後にページを最初に戻す
-      alert("タスクが期限順に並べ替えられました！");
+      toast.success("タスクが期限順に並べ替えられました！");
     }
   } catch (error) {
     console.error("タスクの並べ替えに失敗しました:", error);
-    alert("タスクの並べ替えに失敗しました。");
+    toast.error("タスクの並べ替えに失敗しました。");
   }
 };
 
@@ -342,7 +344,7 @@ const loadTasks = async () => {
     const response = await axios.get("http://localhost:5000/api/tasks");
     props.state.tasks = response.data;
     props.state.paginatedTasks = response.data;
-    alert("フィルターをクリアしました！");
+    toast.success("期限日フィルターをクリアしました！");
   } catch (error) {
     console.error("フィルターのクリアに失敗しました:", error);
   }
@@ -388,7 +390,7 @@ const fetchTasksByDueDate = async (event: SubmitEvent) => {
   try {
     const dueDateValue = dueDate.value; // 入力された期限日を取得
     if (!dueDateValue) {
-      alert("期限日を入力してください");
+      toast.error("期限日を入力してください");
       return;
     }
 
@@ -401,6 +403,7 @@ const fetchTasksByDueDate = async (event: SubmitEvent) => {
     );
 
     if (response.status === 200) {
+      toast.success("タスクの取得に成功しました");
       console.log("取得したレスポンス:", response.data);
       props.state.tasks = response.data.tasks; // 検索結果をtasksに設定
       props.state.paginatedTasks = response.data.tasks;
