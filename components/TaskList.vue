@@ -34,7 +34,7 @@
         class="d-flex align-items-center me-3"
       >
         <div class="me-3">
-          <label for="due-date">期限日:</label>
+          <label for="due-date">締切:</label>
           <input
             v-model="dueDate"
             type="date"
