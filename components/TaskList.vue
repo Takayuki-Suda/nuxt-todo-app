@@ -311,6 +311,7 @@ const getPriorityLabel = (task: Task) => {
 const clearFilter = () => {
   dueDate.value = "";
   loadTasks(); // タスクのリストを再取得してフィルタをクリア
+  toast.success("期限日フィルターをクリアしました！");
 };
 
 // 遅延しているタスクが一つ以上あるか判定する関数
@@ -328,7 +329,7 @@ const sortTasksByDueDate = async () => {
 
     if (response.status === 200) {
       // 並べ替えが成功したら、タスクを再取得して更新
-      await reloadPage();
+      loadTasks();
       props.state.currentPage = 1; // 並べ替え後にページを最初に戻す
       toast.success("タスクが期限順に並べ替えられました！");
     }
@@ -344,7 +345,6 @@ const loadTasks = async () => {
     const response = await axios.get("http://localhost:5000/api/tasks");
     props.state.tasks = response.data;
     props.state.paginatedTasks = response.data;
-    toast.success("期限日フィルターをクリアしました！");
   } catch (error) {
     console.error("フィルターのクリアに失敗しました:", error);
   }
@@ -374,13 +374,13 @@ const deleteCompletedTasks = async () => {
     );
 
     if (response.status === 200) {
-      await reloadPage();
+      loadTasks();
       props.state.currentPage = 1; // 並べ替え後にページを最初に戻す
-      alert("完了済みタスクが削除されました！");
+      toast.success("完了済みタスクが削除されました！");
     }
   } catch (error) {
     console.error("完了済みタスクの削除に失敗しました:", error);
-    alert("完了済みタスクの削除に失敗しました。");
+    toast.error("完了済みタスクの削除に失敗しました。");
   }
 };
 
