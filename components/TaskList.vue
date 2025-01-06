@@ -187,6 +187,7 @@ const emitFetchTasksByDueDate = () => {
 
 const updateTasksPerPage = (event: Event) => {
   const target = event.target as HTMLSelectElement;
+  props.state.currentPage = 1;
   emit("update:tasksPerPage", Number(target.value));
 };
 
