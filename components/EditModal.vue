@@ -65,7 +65,7 @@
         </div>
         <div class="modal-footer">
           <button class="btn btn-secondary" @click="$emit('closeEditModal')">
-            キャンセル
+            閉じる
           </button>
           <button class="btn btn-primary" @click="saveEditTask">保存</button>
         </div>

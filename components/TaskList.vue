@@ -133,7 +133,7 @@
         </div>
 
         <!-- 詳細ボタン -->
-        <button class="btn btn-info btn-sm" @click="showDetails(index)">
+        <button class="btn btn-secondary btn-sm" @click="showDetails(index)">
           詳細
         </button>
       </div>
