@@ -444,13 +444,13 @@ const fetchTasksByDueDate = async (event: SubmitEvent) => {
 }
 
 .column-header:nth-child(2) {
-  margin-left: 80px;
+  margin-left: 40px;
 }
 .column-header:nth-child(3) {
-  margin-left: 60px;
+  margin-left: 10px;
 }
 .column-header:nth-child(4) {
-  margin-left: 25px;
+  margin-right: -62px;
 }
 
 /* 選択されたタスクに色を付ける */
