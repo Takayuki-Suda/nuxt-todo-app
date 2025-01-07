@@ -17,7 +17,7 @@ describe("TaskList", () => {
   const props = {
     state: {
       currentPage: 1,
-      tasksPerPage: 10,
+      tasksPerPage: 5,
       selectedTasks: [],
       tasks: tasks,
       paginatedTasks: tasks,

@@ -7,7 +7,7 @@ describe("TaskControls", () => {
     const wrapper = mount(TaskControls, {
       props: {
         selectedTasksCount: 1,
-        tasksPerPage: 10,
+        tasksPerPage: 5,
         taskDisplayOptions: [5, 10, 20],
       },
     });
@@ -19,7 +19,7 @@ describe("TaskControls", () => {
     const wrapper = mount(TaskControls, {
       props: {
         selectedTasksCount: 1,
-        tasksPerPage: 10,
+        tasksPerPage: 5,
         taskDisplayOptions: [5, 10, 20],
       },
     });
