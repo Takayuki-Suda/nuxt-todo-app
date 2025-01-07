@@ -1,59 +1,53 @@
 import { mount } from "@vue/test-utils";
 import TaskList from "@/components/TaskList.vue";
 import { describe, test, expect } from "vitest";
+import { useTaskState } from "@/composables/task/useTaskState";
 
 describe("TaskList", () => {
-  const tasks = [
+  const { state, taskDisplayOptions } = useTaskState();
+
+  state.value.tasks = [
     {
       id: 1,
-      name: "Task 1",
+      text: "Task 1",
       dueDate: "2023-12-01",
       completed: false,
+      details: null,
       order: 0,
     },
-    { id: 2, name: "Task 2", dueDate: "2023-12-05", completed: true, order: 1 },
+    {
+      id: 2,
+      text: "Task 2",
+      dueDate: "2023-12-05",
+      completed: true,
+      details: null,
+      order: 1,
+    },
   ];
+  state.value.paginatedTasks = state.value.tasks;
 
   const props = {
-    state: {
-      currentPage: 1,
-      tasksPerPage: 5,
-      selectedTasks: [],
-      tasks: tasks,
-      paginatedTasks: tasks,
-    },
+    state: state.value,
+    paginatedTasks: state.value.paginatedTasks,
     draggedTaskIndex: null,
     draggingTaskIndex: null,
     dragDirection: null,
-    taskDisplayOptions: [5, 10, 20],
+    tasksPerPage: state.value.tasksPerPage, // ここを追加
+    taskDisplayOptions: taskDisplayOptions,
   };
 
   test("タスクリストが正しくレンダリングされる", () => {
     const wrapper = mount(TaskList, {
-      props: {
-        state: props.state,
-        paginatedTasks: props.state.paginatedTasks,
-        draggedTaskIndex: props.draggedTaskIndex,
-        draggingTaskIndex: props.draggingTaskIndex,
-        dragDirection: props.dragDirection,
-        tasksPerPage: props.state.tasksPerPage,
-        taskDisplayOptions: props.taskDisplayOptions,
-      },
+      props,
     });
-    expect(wrapper.findAll(".list-group-item").length).toBe(tasks.length);
+    expect(wrapper.findAll(".list-group-item").length).toBe(
+      state.value.tasks.length
+    );
   });
 
   test("タスクの緊急度ラベルが正しく表示される", () => {
     const wrapper = mount(TaskList, {
-      props: {
-        state: props.state,
-        paginatedTasks: props.state.paginatedTasks,
-        draggedTaskIndex: props.draggedTaskIndex,
-        draggingTaskIndex: props.draggingTaskIndex,
-        dragDirection: props.dragDirection,
-        tasksPerPage: props.state.tasksPerPage,
-        taskDisplayOptions: props.taskDisplayOptions,
-      },
+      props,
     });
     const taskItems = wrapper.findAll(".list-group-item");
     expect(taskItems[0].text()).toContain("遅延");
@@ -62,15 +56,7 @@ describe("TaskList", () => {
 
   test("タスクをドラッグアンドドロップできる", async () => {
     const wrapper = mount(TaskList, {
-      props: {
-        state: props.state,
-        paginatedTasks: props.state.paginatedTasks,
-        draggedTaskIndex: props.draggedTaskIndex,
-        draggingTaskIndex: props.draggingTaskIndex,
-        dragDirection: props.dragDirection,
-        tasksPerPage: props.state.tasksPerPage,
-        taskDisplayOptions: props.taskDisplayOptions,
-      },
+      props,
     });
     const taskItems = wrapper.findAll(".list-group-item");
     await taskItems[0].trigger("dragstart");
