@@ -84,7 +84,10 @@ export function useTaskDragDrop(state: Ref<TaskState>) {
         tasks.map((task) => ({
           id: task.id,
           order: task.order,
-        }))
+        })),
+        {
+          timeout: 5000, // タイムアウト設定を追加
+        }
       );
 
       console.log("タスクの順序が保存されました:", response.data);

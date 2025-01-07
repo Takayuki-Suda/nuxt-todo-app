@@ -8,7 +8,7 @@ describe("TaskControls", () => {
       props: {
         selectedTasksCount: 1,
         tasksPerPage: 10,
-        taskDisplayOptions: [10, 20, 30],
+        taskDisplayOptions: [5, 10, 20],
       },
     });
     await wrapper.find("button.btn-danger").trigger("click");
@@ -20,7 +20,7 @@ describe("TaskControls", () => {
       props: {
         selectedTasksCount: 1,
         tasksPerPage: 10,
-        taskDisplayOptions: [10, 20, 30],
+        taskDisplayOptions: [5, 10, 20],
       },
     });
     await wrapper.find("button.btn-secondary").trigger("click");

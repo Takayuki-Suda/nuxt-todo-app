@@ -25,7 +25,7 @@ describe("TaskList", () => {
     draggedTaskIndex: null,
     draggingTaskIndex: null,
     dragDirection: null,
-    taskDisplayOptions: [10, 20, 30],
+    taskDisplayOptions: [5, 10, 20],
   };
 
   test("タスクリストが正しくレンダリングされる", () => {
