@@ -4,8 +4,14 @@ import { describe, test, expect } from "vitest";
 
 describe("TaskList", () => {
   const tasks = [
-    { id: 1, name: "Task 1", dueDate: "2023-12-01", completed: false },
-    { id: 2, name: "Task 2", dueDate: "2023-12-05", completed: true },
+    {
+      id: 1,
+      name: "Task 1",
+      dueDate: "2023-12-01",
+      completed: false,
+      order: 0,
+    },
+    { id: 2, name: "Task 2", dueDate: "2023-12-05", completed: true, order: 1 },
   ];
 
   const props = {
