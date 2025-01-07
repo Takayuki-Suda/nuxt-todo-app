@@ -3,8 +3,8 @@
     <div class="col-12">
       <TaskInput
         v-model="taskState.state.newTask"
-        @add-task="operations.addTask"
-        @clear-input="operations.clearInput"
+        @addTask="operations.addTask"
+        @clearInput="operations.clearInput"
       />
 
       <div class="task-container border p-3">
@@ -39,7 +39,7 @@
       <Pagination
         :current-page="taskState.state.currentPage"
         :total-pages="taskState.totalPages"
-        @change-page="(page) => (taskState.state.currentPage = page)"
+        @changePage="(page) => (taskState.state.currentPage = page)"
       />
     </div>
   </div>
@@ -86,6 +86,8 @@ defineProps({
     default: () => null, // nullが渡されてもエラーにならないように
   },
 });
+
+const emit = defineEmits(["addTask", "changePage"]);
 
 const { taskState, operations } = useTasks();
 

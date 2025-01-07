@@ -39,7 +39,7 @@ const pages = computed(() => {
   return pageArray;
 });
 
-defineEmits<{
+const emit = defineEmits<{
   changePage: [page: number];
 }>();
 </script>

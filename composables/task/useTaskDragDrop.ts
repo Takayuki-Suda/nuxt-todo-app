@@ -89,7 +89,11 @@ export function useTaskDragDrop(state: Ref<TaskState>) {
 
       console.log("タスクの順序が保存されました:", response.data);
     } catch (error) {
-      console.error("タスク順序の保存に失敗しました:", error);
+      if (axios.isAxiosError(error)) {
+        console.error("タスク順序の保存に失敗しました:", error.message);
+      } else {
+        console.error("タスク順序の保存に失敗しました:", error);
+      }
     }
   };
 
