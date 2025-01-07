@@ -10,6 +10,7 @@ describe("TaskManager", () => {
   test("TaskManagerが正しくレンダリングされる", () => {
     const wrapper = mount(TaskManager, {
       props,
+      emits: ["add-task", "change-page"],
     });
     expect(wrapper.find(".task-container").exists()).toBe(true);
   });
@@ -17,6 +18,7 @@ describe("TaskManager", () => {
   test("タスク追加ボタンが正しく動作する", async () => {
     const wrapper = mount(TaskManager, {
       props,
+      emits: ["add-task", "change-page"],
     });
     await wrapper.findComponent({ name: "TaskInput" }).vm.$emit("add-task");
     expect(wrapper.vm.taskState.state.newTask).toBe("");
@@ -25,6 +27,7 @@ describe("TaskManager", () => {
   test("タスク削除ボタンが正しく動作する", async () => {
     const wrapper = mount(TaskManager, {
       props,
+      emits: ["add-task", "change-page"],
     });
     await wrapper
       .findComponent({ name: "TaskControls" })
@@ -35,6 +38,7 @@ describe("TaskManager", () => {
   test("ページネーションが正しく動作する", async () => {
     const wrapper = mount(TaskManager, {
       props,
+      emits: ["add-task", "change-page"],
     });
     await wrapper
       .findComponent({ name: "Pagination" })
