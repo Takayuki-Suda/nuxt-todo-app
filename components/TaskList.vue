@@ -195,11 +195,16 @@ const {
   dragDirection,
   onDragStart,
   onDragOver,
-  onDrop,
+  onDrop: originalOnDrop,
 } = useTaskDragDrop(ref(props.state), () => {
   // タスク保存処理をここで定義
   console.log("Tasks saved");
 });
+
+const onDrop = (index: number) => {
+  originalOnDrop(index);
+  emit("drop", { index });
+};
 
 // ドラッグしているタスクに適用するクラスを取得
 const getDraggingClasses = (index: number) => ({
@@ -425,6 +430,7 @@ const fetchTasksByDueDate = async (event: SubmitEvent) => {
 
 // テキストを8文字以上の場合に7文字目で止めて「...」にする関数
 const truncateText = (text: string) => {
+  if (!text) return "";
   return text.length > 7 ? text.slice(0, 7) + "..." : text;
 };
 </script>
