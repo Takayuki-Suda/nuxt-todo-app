@@ -20,7 +20,7 @@ flowchart 作成方法
 2.task_flow.puml を作成(例)
 3.jdk をインストール
 4.plantuml-x.xxxx.x.jar をインストールし任意のディレクトリに保存
-5.java -jar D:/tools/plantuml/plantuml-x.xxxx.x.jar task_flow.puml
+5.java -jar C:/tools/plantuml/plantuml-1.2024.8.jar task_flow.puml
 
 ブランチを作成したらリモートリポジトリにプッシュする
 git push -u origin <ブランチ名>

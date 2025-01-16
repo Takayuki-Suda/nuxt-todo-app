@@ -1,0 +1,65 @@
+@startuml
+skinparam monochrome false
+skinparam componentStyle rectangle
+skinparam backgroundColor #fdfdfd
+
+' フロントエンド
+package "Frontend (Vue, Nuxt3)" #LightBlue {
+    [TaskInput] as taskInput <<Component>> #LightGreen
+    [TaskList] as taskList <<Component>> #LightGreen
+    [Pagination] as pagination <<Component>> #LightGreen
+    [TaskDetailsModal] as detailsModal <<Component>> #LightGreen
+    [TaskControls] as taskControls <<Component>> #LightGreen
+    [EditModal] as editModal <<Component>> #LightGreen
+    [ToastNotification] as toast <<Component>> #LightGreen
+
+    [TaskManager] as taskManager <<Component>> #LightGreen
+}
+
+' ユーザー操作
+actor User
+User -> taskManager : Adds, Views, Edits tasks
+
+' フロントエンドとバックエンドの通信
+taskInput --> [Backend (Flask)] : POST /tasks
+taskList --> [Backend (Flask)] : GET /tasks
+
+' バックエンド
+package "Backend (Flask)" #LightYellow {
+    [TaskController] as taskController <<Controller>> #LightPink
+    [TaskService] as taskService <<Service>> #LightPink
+    [Database] as database <<Storage>> #LightPink
+}
+
+taskController --> taskService : Calls services
+taskService --> database : Executes queries
+
+' データベース
+database --> [Database (MySQL)] : Task records
+
+package "Database (MySQL)" #LightGray {
+    [Task] <<Table>> #White
+}
+
+' フロントエンドフロー
+taskInput --> taskList : Sends task data
+taskList --> pagination : Manages pagination
+taskList --> detailsModal : Shows task details
+detailsModal --> editModal : Opens for editing
+taskList --> taskControls : Controls task actions
+taskList --> toast : Triggers notification
+
+' エラー処理
+taskInput --> toast : Shows error (Validation failed)
+[Backend (Flask)] --> toast : Shows error (Server failed)
+
+' 説明コメント
+note right of taskInput
+    Collects task input from user.
+end note
+
+note right of taskList
+    Displays list of tasks retrieved from backend.
+end note
+
+@enduml
