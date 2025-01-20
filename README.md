@@ -30,3 +30,10 @@ python app.py
 
 テスト
 npm test
+
+仮想環境作成(依存関係を隔離することで競合を防げる)
+作成した仮想環境を有効にするコマンド（Bash シェルの場合）：
+source ./venv/Scripts/activate
+
+.gitignore ファイルに以下の行を追加します
+venv/
