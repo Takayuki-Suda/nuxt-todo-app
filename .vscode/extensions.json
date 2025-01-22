@@ -1,0 +1,14 @@
+{
+  "recommendations": [
+    "adam-bender.commit-message-editor",
+    "mhutchie.git-graph",
+    "ms-ceintl.vscode-language-pack-ja",
+    "esbenp.prettier-vscode",
+    "ms-python.vscode-pylance",
+    "ms-python.python",
+    "ms-python.debugpy",
+    "vitest.explorer",
+    "praburangki.nuxt-snippets",
+    "wscats.vue"
+  ]
+}
